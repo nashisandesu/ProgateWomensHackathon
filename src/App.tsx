@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Task } from './types';
 import { v4 as uuid } from 'uuid';
 // --- Google認証関連のライブラリをインポート ---
@@ -68,27 +68,39 @@ export default function App() {
 function TodoQuest() {
   // stageの代わりに、ユーザー情報(user)でログイン状態を管理します。
   const [user, setUser] = useState<CredentialResponse | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([{
-    id: uuid(),
-    title: '部屋の片付け',
-    point: 50,
-    done: false,
-  }, {
-    id: uuid(),
-    title: '英会話',
-    point: 20,
-    done: false,
-  }]);
+   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingTask, setEditingTask] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editPoint, setEditPoint] = useState(10);
   const [editDue, setEditDue] = useState('');
   const [showMenu, setShowMenu] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); 
   // 経験値Getアニメーション用のstate
   const [xpGain, setXpGain] = useState<{ point: number; show: boolean }>({ point: 0, show: false });
   // レベルアップアニメーション用のstate
   const [levelUp, setLevelUp] = useState<{ show: boolean }>({ show: false });
+  useEffect(() => {
+  try {
+      const storedTasks = localStorage.getItem('todoQuestTasks');
+      if (storedTasks) {
+        setTasks(JSON.parse(storedTasks));
+      }
+    } catch (error) {
+      console.error("Failed to load tasks from localStorage:", error);
+    } finally {
+      setIsLoading(false); // 読み込み完了
+    }
+  }, []);
+ useEffect(() => {
+    if (!isLoading) { // 初期ロードが完了してから保存を開始する
+      try {
+        localStorage.setItem('todoQuestTasks', JSON.stringify(tasks));
+      } catch (error) {
+        console.error("Failed to save tasks to localStorage:", error);
+      }
+    }
+  }, [tasks, isLoading]);
 
   const xp = tasks.filter(t => t.done).reduce((sum, t) => sum + t.point, 0);
   const level = Math.floor(xp / 100) + 1;
