@@ -29,6 +29,11 @@ function TodoQuest() {
     showOverdueNotification,
     showLevelUpPopup,
     levelUpData,
+    // キャラクター関連の値
+    selectedCharacter,
+    hasSelectedCharacter,
+    getCurrentGif,
+    resetCharacterSelection,
     toggleTask,
     addTask,
     deleteTask,
@@ -53,6 +58,9 @@ function TodoQuest() {
           hp={hp}
           currentMessage={currentMessage}
           tasks={tasks}
+          selectedCharacter={selectedCharacter}
+          hasSelectedCharacter={hasSelectedCharacter}
+          getCurrentGif={getCurrentGif}
           onToggleTask={toggleTask}
           onDeleteTask={deleteTask}
           onEditTask={editTask}
@@ -71,27 +79,15 @@ function TodoQuest() {
       </div>
 
       {/* Floating Add Task Button - 右下に配置 */}
-      <button 
-        className="
-        fixed bottom-4 right-4        /* 画面右下に固定 */
-        w-14 h-14                     /* 56 px の円 */
-        rounded-full                  /* 角丸 = 完全な円 */
-        bg-blue-600 hover:bg-blue-700 /* 色とホバー色 */
-        text-white text-2xl font-bold /* ＋マークの見た目 */
-        flex items-center justify-center
-        shadow-lg                     /* 浮かせる影 */
-        transition-transform duration-200 hover:scale-110
-        focus:outline-none focus:ring-4 focus:ring-blue-300
-        dark:focus:ring-blue-800
-        z-50
-      "
+      <button
         onClick={() => setShowAddForm(true)}
-        aria-label="タスクを追加"
+        className="fixed bottom-4 right-4 lg:bottom-8 lg:right-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 lg:w-20 lg:h-20 flex items-center justify-center text-2xl lg:text-3xl shadow-lg transition-all duration-200 z-50"
+        style={{ boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}
       >
-        ＋
+        +
       </button>
 
-      {/* Add Task Popup - より高いz-indexを使用 */}
+      {/* Add Task Form Modal */}
       {showAddForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
           <div className="bg-white border-4 border-black p-4 lg:p-6 w-full max-w-md mx-auto max-h-[90vh] overflow-y-auto">
@@ -112,7 +108,7 @@ function TodoQuest() {
         </div>
       )}
 
-      {/* 期限切れタスク通知 */}
+      {/* Overdue Notification */}
       <OverdueNotification 
         overdueTasks={overdueTasks}
         showNotification={showOverdueNotification}
@@ -121,10 +117,11 @@ function TodoQuest() {
         onDeleteTask={deleteTask}
       />
 
-      {/* レベルアップポップアップ */}
+      {/* Level Up Popup */}
       <LevelUpPopup
         show={showLevelUpPopup}
         levelUpData={levelUpData}
+        getCurrentGif={getCurrentGif}
         onClose={closeLevelUpPopup}
       />
     </div>

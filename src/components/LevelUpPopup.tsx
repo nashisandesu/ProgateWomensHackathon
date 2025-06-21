@@ -1,5 +1,3 @@
-import { useCharacter } from '../hooks';
-
 // レベルアップ時のお祝いメッセージ管理（5で割った余りで管理）
 const CONGRATULATION_MESSAGES = {
   1: "新しい生命の予感…!!",
@@ -12,15 +10,14 @@ const CONGRATULATION_MESSAGES = {
 interface LevelUpPopupProps {
   show: boolean;
   levelUpData: { newLevel: number; newXp: number } | null;
+  getCurrentGif: (level: number) => string;
   onClose: () => void;
 }
 
-export function LevelUpPopup({ show, levelUpData, onClose }: LevelUpPopupProps) {
-  const { getCurrentGif } = useCharacter(levelUpData?.newLevel || 1);
-  
+export function LevelUpPopup({ show, levelUpData, getCurrentGif, onClose }: LevelUpPopupProps) {
   if (!show || !levelUpData) return null;
 
-  const characterGif = getCurrentGif();
+  const characterGif = getCurrentGif(levelUpData.newLevel);
   
   // レベルを5で割った余りでお祝いメッセージを取得（余りが0の場合は5として扱う）
   const levelRemainder = (levelUpData.newLevel - 1) % 5 || 5;
@@ -87,12 +84,12 @@ export function LevelUpPopup({ show, levelUpData, onClose }: LevelUpPopupProps) 
           </p>
         </div>
         
-        {/* 確認ボタン */}
-        <button 
-          className="nes-btn is-success px-8 py-3 text-lg font-bold"
+        {/* 閉じるボタン */}
+        <button
           onClick={onClose}
+          className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-200"
         >
-          ✨ 確認
+          閉じる
         </button>
       </div>
     </div>

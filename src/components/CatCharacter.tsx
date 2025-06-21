@@ -1,6 +1,5 @@
 import { CompletedTasks } from './CompletedTasks';
 import { TaskSearch } from './TaskSearch';
-import { useCharacter } from '../hooks';
 import type { Task } from '../types';
 
 interface CatCharacterProps {
@@ -15,6 +14,9 @@ interface CatCharacterProps {
     amount?: number;
   } | null;
   tasks: Task[];
+  selectedCharacter: number | null;
+  hasSelectedCharacter: boolean;
+  getCurrentGif: (level: number) => string;
   onToggleTask: (id: string) => void;
   onDeleteTask: (id: string) => void;
   onEditTask: (id: string, newTitle: string, newPoint: number, newDue?: string) => void;
@@ -26,14 +28,15 @@ export function CatCharacter({
   hp, 
   currentMessage, 
   tasks, 
+  selectedCharacter,
+  hasSelectedCharacter,
+  getCurrentGif,
   onToggleTask, 
   onDeleteTask, 
   onEditTask
 }: CatCharacterProps) {
-  const { selectedCharacter, hasSelectedCharacter, getCurrentGif } = useCharacter(level);
-  
   // キャラクター画像のパスを取得
-  const characterGif = getCurrentGif();
+  const characterGif = getCurrentGif(level);
   
   return (
     <div

@@ -24,8 +24,89 @@ export function useTasks() {
   const [showLevelUpPopup, setShowLevelUpPopup] = useState(false);
   const [levelUpData, setLevelUpData] = useState<{ newLevel: number; newXp: number } | null>(null);
   
+  // キャラクター関連の状態
+  const [selectedCharacter, setSelectedCharacter] = useState<number | null>(() => {
+    const stored = localStorage.getItem("todoQuestCharacter");
+    return stored ? Number(stored) : null;
+  });
+
+  const [hasSelectedCharacter, setHasSelectedCharacter] = useState<boolean>(() => {
+    return localStorage.getItem("todoQuestHasSelected") === "true";
+  });
+
+  const previousLevelRef = useRef<number>(1);
+  
   // メッセージ表示の制御用
   const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // 経験値とレベル計算（キャラクター選択ロジックより前に配置）
+  const xp = tasks.filter(t => t.done).reduce((sum, t) => sum + t.point, 0);
+  const level = Math.floor(xp / 100) + 1;
+  
+  // HP計算：最大HPから累積のHP損失を引く
+  const hp = Math.max(0, MAX_HP - overdueHpLoss);
+
+  // キャラクター選択のヘルパー関数
+  const pickRandomCharacter = () => {
+    const random = Math.floor(Math.random() * 15) + 1; // 1–15
+    setSelectedCharacter(random);
+    setHasSelectedCharacter(true);
+  };
+
+  // キャラクター選択のリセット関数
+  const resetCharacterSelection = () => {
+    console.log("Resetting character selection");
+    setSelectedCharacter(null);
+    setHasSelectedCharacter(false);
+    localStorage.removeItem("todoQuestCharacter");
+    localStorage.removeItem("todoQuestHasSelected");
+  };
+
+  // 現在のGIFを取得する関数
+  const getCurrentGif = (currentLevel: number) => {
+    if (selectedCharacter === null) return "cat-animation.gif";
+
+    const normalizedLevel = ((currentLevel - 1) % 5) + 1; // 1–5
+    return `/character${selectedCharacter}/level${normalizedLevel}.gif`;
+  };
+
+  // キャラクター状態の永続化
+  useEffect(() => {
+    if (selectedCharacter !== null) {
+      try {
+        localStorage.setItem("todoQuestCharacter", selectedCharacter.toString());
+        localStorage.setItem("todoQuestHasSelected", "true");
+        console.log("Saved character to localStorage:", selectedCharacter);
+      } catch (err) {
+        console.error("Failed to save character to localStorage:", err);
+      }
+    }
+  }, [selectedCharacter]);
+
+  // キャラクター選択ロジック
+  useEffect(() => {
+    const prev = previousLevelRef.current;
+    const isLevelUp = level > prev;
+    const isPickTiming = level !== 0 && level % 5 === 1; // 1,6,11,…
+
+    console.log("Character selection check:", {
+      level,
+      prev,
+      isLevelUp,
+      isPickTiming,
+      hasSelectedCharacter,
+    });
+
+    if (!hasSelectedCharacter) {
+      // 初回
+      pickRandomCharacter();
+    } else if (isLevelUp && isPickTiming) {
+      // レベル到達トリガ
+      pickRandomCharacter();
+    }
+
+    previousLevelRef.current = level;
+  }, [level, hasSelectedCharacter]);
 
   // 初期ロード
   useEffect(() => {
@@ -203,13 +284,6 @@ export function useTasks() {
     return () => clearInterval(imminentInterval);
   }, [tasks, lastHpCheck]);
 
-  // 経験値とレベル計算
-  const xp = tasks.filter(t => t.done).reduce((sum, t) => sum + t.point, 0);
-  const level = Math.floor(xp / 100) + 1;
-  
-  // HP計算：最大HPから累積のHP損失を引く
-  const hp = Math.max(0, MAX_HP - overdueHpLoss);
-
   const toggleTask = (id: string) => {
     setTasks(prev => {
       const updatedTasks = prev.map(t => {
@@ -335,6 +409,11 @@ export function useTasks() {
     showOverdueNotification,
     showLevelUpPopup,
     levelUpData,
+    // キャラクター関連の値
+    selectedCharacter,
+    hasSelectedCharacter,
+    getCurrentGif,
+    resetCharacterSelection,
     toggleTask,
     addTask,
     deleteTask,
