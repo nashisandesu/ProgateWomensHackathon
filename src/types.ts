@@ -3,4 +3,5 @@ export interface Task {
     title: string;
     point: number;
     done: boolean;
+    due?: string;
   }

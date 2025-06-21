@@ -12,17 +12,19 @@ const MAX_HP = 5;
 const GOOGLE_CLIENT_ID = "527828076351-j8ajmuudb77dkmt7jrd4j4l791fpbvsh.apps.googleusercontent.com";
 
 // --- AddTaskFormコンポーネント（変更なし） ---
-function AddTaskForm({ onAdd }: { onAdd: (title: string, point: number) => void }) {
+function AddTaskForm({ onAdd }: { onAdd: (title: string, point: number,due?:string) => void }) {
   const [title, setTitle] = useState('');
   const [point, setPoint] = useState<number>(10);
+  const [due,setDue]= useState('');
   return (
     <form
       onSubmit={e => {
         e.preventDefault();
         if (!title.trim()) return;
-        onAdd(title.trim(), point);
+        onAdd(title.trim(), point, due);
         setTitle('');
         setPoint(10);
+        setDue('');
       }}
       className="mt-2 flex flex-col space-y-2"
     >
@@ -40,6 +42,12 @@ function AddTaskForm({ onAdd }: { onAdd: (title: string, point: number) => void 
         step={5}
         value={point}
         onChange={e => setPoint(Number(e.target.value))}
+      />
+      <input
+        type="date"
+        className="nes-input"
+        value={due}
+        onChange={e => setDue(e.target.value)}
       />
       <button className="nes-btn is-success" type="submit">＋ 追加</button>
     </form>
@@ -79,14 +87,15 @@ function TodoQuest() {
 
   const xp = tasks.filter(t => t.done).reduce((sum, t) => sum + t.point, 0);
   const level = Math.floor(xp / 100) + 1;
-  const hp = Math.max(0, MAX_HP - tasks.filter(t => !t.done).length);
-
+  const now = new Date();
+const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now).length;
+  const hp = Math.max(0, MAX_HP - overdueCount);
   const toggleTask = (id: string) => {
     setTasks(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
   };
 
-  const addTask = (title: string, point: number) => {
-    setTasks(prev => [...prev, { id: uuid(), title, point, done: false }]);
+  const addTask = (title: string, point: number,due?: string) => {
+    setTasks(prev => [...prev, { id: uuid(), title, point, done: false, due }]);
   };
 
   const deleteTask = (id: string) => {
@@ -179,10 +188,17 @@ function TodoQuest() {
                       </button>
                     </div>
                   </div>
-                ) : (
-                  <span className={t.done ? 'line-through opacity-50' : ''}>{t.title}</span>
-                )}
-              </div>
+        ) : (
+          <>
+            <span className={t.done ? 'line-through opacity-50' : ''}>{t.title}</span>
+            {t.due && (
+              <span className="ml-2 text-xs text-gray-500">
+                期限: {new Date(t.due).toLocaleDateString()}
+              </span>
+            )}
+          </>
+        )}
+      </div>
               <div className="flex items-center space-x-2">
                 {editingTask !== t.id && (
                   <span className="nes-badge"><span className="is-dark">{t.point}pt</span></span>
