@@ -7,7 +7,6 @@ interface OverdueNotificationProps {
   onToggleTask: (id: string) => void;
   onExtendDeadline: (id: string, newDue: string) => void;
   onDeleteTask: (id: string) => void;
-  onCloseNotification: () => void;
 }
 
 export function OverdueNotification({ 
@@ -15,8 +14,7 @@ export function OverdueNotification({
   showNotification,
   onToggleTask, 
   onExtendDeadline, 
-  onDeleteTask,
-  onCloseNotification
+  onDeleteTask
 }: OverdueNotificationProps) {
   const [extendingTask, setExtendingTask] = useState<string | null>(null);
   const [newDeadline, setNewDeadline] = useState('');

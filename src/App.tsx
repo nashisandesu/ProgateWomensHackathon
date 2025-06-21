@@ -121,7 +121,6 @@ function TodoQuest() {
         onToggleTask={toggleTask}
         onExtendDeadline={extendDeadline}
         onDeleteTask={deleteTask}
-        onCloseNotification={closeOverdueNotification}
       />
     </div>
   );
