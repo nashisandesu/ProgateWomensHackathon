@@ -1,5 +1,6 @@
 import { CompletedTasks } from './CompletedTasks';
 import { TaskSearch } from './TaskSearch';
+import { useCharacter } from '../hooks';
 import type { Task } from '../types';
 
 interface CatCharacterProps {
@@ -15,6 +16,11 @@ interface CatCharacterProps {
 }
 
 export function CatCharacter({ level, xp, hp, xpGain, levelUp, tasks, onToggleTask, onDeleteTask, onEditTask }: CatCharacterProps) {
+  const { selectedCharacter, hasSelectedCharacter, getCurrentGif, resetCharacterSelection } = useCharacter(level);
+  
+  // キャラクターが選択されていない場合はデフォルトの猫を表示
+  const characterGif = getCurrentGif() || "cat-animation.gif";
+
   return (
     <div
       className="w-full lg:w-1/2 flex flex-col items-center justify-center border-4 border-black relative h-auto lg:h-full p-2 lg:p-4"
@@ -26,6 +32,11 @@ export function CatCharacter({ level, xp, hp, xpGain, levelUp, tasks, onToggleTa
     >
       <div className="absolute top-2 left-2 lg:top-4 lg:left-4 z-20 space-y-1 lg:space-y-2">
         <div className="text-base lg:text-lg font-bold">Lv.{level}</div>
+        {selectedCharacter && (
+          <div className="text-xs lg:text-sm text-blue-600 font-bold">
+            キャラクター {selectedCharacter}
+          </div>
+        )}
         <div className="w-24 lg:w-32">
           <div className="w-full bg-gray-300 border-2 border-black">
             <div 
@@ -46,6 +57,21 @@ export function CatCharacter({ level, xp, hp, xpGain, levelUp, tasks, onToggleTa
             />
           )}
         </div>
+        
+        {/* デバッグ情報 */}
+        <div className="text-xs text-gray-500">
+          <div>選択済み: {hasSelectedCharacter ? 'Yes' : 'No'}</div>
+          <div>レベル % 5: {level % 5}</div>
+          <div>抽選条件: {level % 5 === 1 ? 'Yes' : 'No'}</div>
+        </div>
+        
+        {/* リセットボタン（開発用） */}
+        <button 
+          onClick={resetCharacterSelection}
+          className="text-xs bg-red-500 text-white px-2 py-1 rounded"
+        >
+          リセット
+        </button>
       </div>
       
       {/* 経験値Getアニメーションを猫の上に表示 */}
@@ -62,7 +88,14 @@ export function CatCharacter({ level, xp, hp, xpGain, levelUp, tasks, onToggleTa
         </div>
       )}
       
-      <img src="cat-animation.gif" className="w-40 h-40 lg:w-64 lg:h-64" alt="cat" />
+      {/* キャラクター抽選アニメーション */}
+      {level % 5 === 1 && !hasSelectedCharacter && (
+        <div className="absolute left-1/2 transform -translate-x-1/2 z-10 text-lg lg:text-xl font-bold whitespace-nowrap text-purple-400 animate-pulse" style={{ top: '25%' }}>
+          キャラクター抽選中... 🎲
+        </div>
+      )}
+      
+      <img src={characterGif} className="w-40 h-40 lg:w-64 lg:h-64" alt="character" />
       
       {/* 完了タスクボタン - 左下に配置 */}
       <CompletedTasks tasks={tasks} onToggleTask={onToggleTask} />

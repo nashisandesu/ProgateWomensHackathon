@@ -1,1 +1,2 @@
-export { useTasks } from './useTasks'; 
+export { useTasks } from './useTasks';
+export { useCharacter } from './useCharacter'; 
