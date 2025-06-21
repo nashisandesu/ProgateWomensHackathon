@@ -33,7 +33,7 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
     <div className="absolute bottom-0 left-0">
       {/* 完了タスクボタン */}
       <button
-        className="relative"
+        className="relative focus:outline-none"
         onClick={() => setIsOpen(!isOpen)}
       >
         <img src="wood_piskel.gif" className="w-48" alt="wood" />
