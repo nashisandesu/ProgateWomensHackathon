@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { TokenResponse } from '@react-oauth/google';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { LoginPage, CatCharacter, TaskList, AddTaskForm, OverdueNotification } from './components';
+import { LoginPage, CatCharacter, TaskList, AddTaskForm, OverdueNotification, LevelUpPopup } from './components';
 import { useTasks } from './hooks';
 import { GOOGLE_CLIENT_ID } from './utils';
 
@@ -27,11 +27,14 @@ function TodoQuest() {
     currentMessage,
     overdueTasks,
     showOverdueNotification,
+    showLevelUpPopup,
+    levelUpData,
     toggleTask,
     addTask,
     deleteTask,
     editTask,
     extendDeadline,
+    closeLevelUpPopup,
   } = useTasks();
 
   // ユーザー情報がない（ログインしていない）場合は、ログインページを表示
@@ -116,6 +119,13 @@ function TodoQuest() {
         onToggleTask={toggleTask}
         onExtendDeadline={extendDeadline}
         onDeleteTask={deleteTask}
+      />
+
+      {/* レベルアップポップアップ */}
+      <LevelUpPopup
+        show={showLevelUpPopup}
+        levelUpData={levelUpData}
+        onClose={closeLevelUpPopup}
       />
     </div>
   );

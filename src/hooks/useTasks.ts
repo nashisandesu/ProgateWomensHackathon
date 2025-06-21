@@ -21,6 +21,8 @@ export function useTasks() {
   const [overdueHpLoss, setOverdueHpLoss] = useState<number>(0);
   const [overdueTasks, setOverdueTasks] = useState<Task[]>([]);
   const [showOverdueNotification, setShowOverdueNotification] = useState(false);
+  const [showLevelUpPopup, setShowLevelUpPopup] = useState(false);
+  const [levelUpData, setLevelUpData] = useState<{ newLevel: number; newXp: number } | null>(null);
   
   // メッセージ表示の制御用
   const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -223,13 +225,15 @@ export function useTasks() {
             );
             const currentXp = updatedTasksForCalculation.filter(task => task.done).reduce((sum, task) => sum + task.point, 0);
             const currentLevel = Math.floor(currentXp / 100) + 1;
+            const previousLevel = Math.floor((currentXp - t.point) / 100) + 1;
             
             // 経験値ゲットを先に表示
             addMessageToQueue({ type: 'xpGain', content: `EXP Get! +${t.point} XP`, point: t.point });
             
-            // レベルアップした場合は後で表示
-            if (currentLevel > Math.floor((currentXp - t.point) / 100) + 1) {
-              addMessageToQueue({ type: 'levelUp', content: 'LEVEL UP! 🎉' });
+            // レベルアップした場合はポップアップを表示
+            if (currentLevel > previousLevel) {
+              setLevelUpData({ newLevel: currentLevel, newXp: currentXp });
+              setShowLevelUpPopup(true);
             }
           }
           
@@ -272,6 +276,12 @@ export function useTasks() {
   const getActiveTasks = () => {
     const now = new Date();
     return tasks.filter(t => !t.done && (!t.due || new Date(t.due) >= now));
+  };
+
+  // レベルアップポップアップを閉じる
+  const closeLevelUpPopup = () => {
+    setShowLevelUpPopup(false);
+    setLevelUpData(null);
   };
 
   // メッセージをキューに追加する関数
@@ -323,6 +333,8 @@ export function useTasks() {
     messageQueue,
     overdueTasks,
     showOverdueNotification,
+    showLevelUpPopup,
+    levelUpData,
     toggleTask,
     addTask,
     deleteTask,
@@ -330,5 +342,6 @@ export function useTasks() {
     extendDeadline,
     getOverdueTasks,
     getActiveTasks,
+    closeLevelUpPopup,
   };
 } 
