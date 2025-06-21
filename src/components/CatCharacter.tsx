@@ -59,19 +59,19 @@ export function CatCharacter({ level, xp, hp, xpGain, levelUp, tasks, onToggleTa
         </div>
         
         {/* デバッグ情報 */}
-        <div className="text-xs text-gray-500">
+        {/* <div className="text-xs text-gray-500">
           <div>選択済み: {hasSelectedCharacter ? 'Yes' : 'No'}</div>
           <div>レベル % 5: {level % 5}</div>
           <div>抽選条件: {level % 5 === 1 ? 'Yes' : 'No'}</div>
-        </div>
+        </div> */}
         
         {/* リセットボタン（開発用） */}
-        <button 
+        {/* <button 
           onClick={resetCharacterSelection}
           className="text-xs bg-red-500 text-white px-2 py-1 rounded"
         >
           リセット
-        </button>
+        </button> */}
       </div>
       
       {/* 経験値Getアニメーションを猫の上に表示 */}
