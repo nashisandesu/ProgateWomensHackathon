@@ -95,52 +95,57 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
   }
 
   return (
-    <li className="bg-gray-100 p-2 rounded">
-      <div className="w-full">
-        <div className="flex justify-between items-center">
-          <div>
-            <span>{task.title}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <span className="nes-badge"><span className="is-dark">{task.point}pt</span></span>
+    <li className="bg-gray-100 p-3 rounded-lg">
+      <div className="w-full flex justify-between items-center gap-x-3">
+        {/* Task Title */}
+        <div className="flex-1 min-w-0">
+          <p className="text-gray-800 break-words">
+            {task.title}
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div className="flex-shrink-0 flex items-center space-x-2">
+          <span className="text-sm font-black text-gray-800 w-12 text-right">
+            {task.point}pt
+          </span>
+          <button
+            className="nes-btn is-success !h-auto !py-2 !px-3 text-sm"
+            onClick={() => setShowConfirmPopup(true)}
+          >
+            完了
+          </button>
+          <div className="relative">
             <button
-              className="nes-btn is-success w-24 h-12"
-              onClick={() => setShowConfirmPopup(true)}
+              className="nes-btn !h-auto !py-2 !px-2"
+              onClick={() => setShowMenu(!showMenu)}
             >
-              完了
+              <span className="text-sm">︙</span>
             </button>
-            <div className="relative">
-              <button
-                className="nes-btn"
-                onClick={() => setShowMenu(!showMenu)}
-              >
-                ⋯
-              </button>
-              {showMenu && (
-                <div className="absolute right-0 top-full mt-1 bg-white border-2 border-black p-2 z-10">
-                  <div className="flex space-x-2">
-                    <button
-                      className="nes-btn whitespace-nowrap"
-                      onClick={() => {
-                        setIsEditing(true);
-                        setShowMenu(false);
-                      }}
-                    >
-                      編集
-                    </button>
-                    <button
-                      className="nes-btn is-error whitespace-nowrap"
-                      onClick={() => {
-                        onDelete(task.id);
-                        setShowMenu(false);
-                      }}
-                    >
-                      削除
-                    </button>
-                  </div>
+            {showMenu && (
+              <div className="absolute right-0 top-full mt-1 bg-white border-2 border-black p-2 z-10 rounded shadow-lg">
+                <div className="flex flex-col space-y-1">
+                  <button
+                    className="nes-btn whitespace-nowrap text-sm"
+                    onClick={() => {
+                      setIsEditing(true);
+                      setShowMenu(false);
+                    }}
+                  >
+                    ✏️ 編集
+                  </button>
+                  <button
+                    className="nes-btn is-error whitespace-nowrap text-sm"
+                    onClick={() => {
+                      onDelete(task.id);
+                      setShowMenu(false);
+                    }}
+                  >
+                    🗑️ 削除
+                  </button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
