@@ -4,7 +4,6 @@ import { v4 as uuid } from 'uuid';
 // --- Google認証関連のライブラリをインポート ---
 import { GoogleOAuthProvider, GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 
-const HEART = '💙';
 const MAX_HP = 5;
 
 // クライアントIDは、環境変数などを使って管理するのが推奨されます。
@@ -157,6 +156,7 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
           onError={() => {
             console.log('Login Failed');
           }}
+          
         />
       </div>
     );
