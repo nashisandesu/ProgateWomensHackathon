@@ -99,15 +99,6 @@ export function CatCharacter({
         src={characterGif} 
         className="w-40 h-40 lg:w-64 lg:h-64" 
         alt="character"
-        onError={(e) => {
-          console.error('Failed to load character image:', characterGif);
-          // エラー時にデフォルトの猫画像にフォールバック
-          const target = e.target as HTMLImageElement;
-          target.src = "cat-animation.gif";
-        }}
-        onLoad={() => {
-          console.log('Character image loaded successfully:', characterGif);
-        }}
       />
       
       {/* 完了タスクボタン - 左下に配置 */}
