@@ -147,20 +147,20 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
 
       {/* かわいい確認ポップアップ */}
       {showConfirmPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white border-4 border-pink-300 rounded-lg p-6 max-w-sm w-full mx-4 shadow-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[85] p-4">
+          <div className="bg-white border-4 border-pink-300 rounded-lg p-4 lg:p-6 w-full max-w-sm mx-auto">
             <div className="text-center">
-              <div className="text-4xl mb-4">🎉</div>
-              <h3 className="text-xl font-bold text-pink-600 mb-4">
+              <div className="text-3xl lg:text-4xl mb-4">🎉</div>
+              <h3 className="text-lg lg:text-xl font-bold text-pink-600 mb-4">
                 タスク完了確認
               </h3>
-              <p className="text-gray-700 mb-6">
+              <p className="text-gray-700 mb-6 text-sm lg:text-base">
                 「<span className="font-bold text-pink-500">{task.title}</span>」を<br />
                 完了しましたか？
               </p>
               <div className="flex space-x-4 justify-center">
                 <button
-                  className="nes-btn is-success px-6 py-2"
+                  className="nes-btn is-success px-4 lg:px-6 py-2 text-sm lg:text-base"
                   onClick={() => {
                     onToggle(task.id);
                     setShowConfirmPopup(false);
@@ -169,7 +169,7 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
                   ✨ 完了！
                 </button>
                 <button
-                  className="nes-btn px-6 py-2"
+                  className="nes-btn px-4 lg:px-6 py-2 text-sm lg:text-base"
                   onClick={() => setShowConfirmPopup(false)}
                 >
                   キャンセル

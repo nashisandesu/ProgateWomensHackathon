@@ -39,23 +39,25 @@ function TodoQuest() {
 
   // ログイン済みの場合は、ToDoアプリ本体を表示
   return (
-    <div className="flex flex-col md:flex-row w-full h-full p-4 gap-4">
-      {/* ─ Center Cat ─ */}
-      <CatCharacter
-        level={level}
-        xp={xp}
-        hp={hp}
-        xpGain={xpGain}
-        levelUp={levelUp}
-        tasks={tasks}
-        onToggleTask={toggleTask}
-        onDeleteTask={deleteTask}
-        onEditTask={editTask}
-      />
+    <div className="flex flex-col lg:flex-row w-full h-full p-2 lg:p-4 gap-2 lg:gap-4 relative overflow-hidden">
+      {/* ─ Left Cat Panel ─ */}
+      <div className="w-full lg:w-1/2 h-auto lg:h-full min-h-[400px] lg:min-h-0">
+        <CatCharacter
+          level={level}
+          xp={xp}
+          hp={hp}
+          xpGain={xpGain}
+          levelUp={levelUp}
+          tasks={tasks}
+          onToggleTask={toggleTask}
+          onDeleteTask={deleteTask}
+          onEditTask={editTask}
+        />
+      </div>
 
       {/* ─ Right Task Panel ─ */}
-      <div className="w-full md:w-1/2 h-auto md:h-full border-4 border-black p-4 flex flex-col flex-1">
-        <h2 className="text-xl mb-4">今日のタスク</h2>
+      <div className="w-full lg:w-1/2 h-auto lg:h-full border-4 border-black p-2 lg:p-4 flex flex-col flex-1 min-h-[300px] lg:min-h-0">
+        <h2 className="text-lg lg:text-xl mb-2 lg:mb-4">今日のタスク</h2>
         <TaskList
           tasks={tasks}
           onToggleTask={toggleTask}
@@ -64,18 +66,18 @@ function TodoQuest() {
         />
         {/* Add Task Button */}
         <button 
-          className="nes-btn is-primary w-full mt-4" 
+          className="nes-btn is-primary w-full mt-2 lg:mt-4 py-3 lg:py-2" 
           onClick={() => setShowAddForm(true)}
         >
           ＋ タスクを追加
         </button>
       </div>
 
-      {/* Add Task Popup */}
+      {/* Add Task Popup - より高いz-indexを使用 */}
       {showAddForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white border-4 border-black p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl mb-4">新しいタスクを追加</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
+          <div className="bg-white border-4 border-black p-4 lg:p-6 w-full max-w-md mx-auto max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg lg:text-xl mb-4">新しいタスクを追加</h3>
             <AddTaskForm 
               onAdd={(title, point, due) => {
                 addTask(title, point, due);
@@ -83,7 +85,7 @@ function TodoQuest() {
               }} 
             />
             <button 
-              className="nes-btn mt-4 w-full" 
+              className="nes-btn mt-4 w-full py-3 lg:py-2" 
               onClick={() => setShowAddForm(false)}
             >
               キャンセル

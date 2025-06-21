@@ -48,10 +48,10 @@ export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: Ta
   };
 
   return (
-    <div className="absolute bottom-4 right-4">
+    <div className="absolute bottom-1 right-1 lg:bottom-4 lg:right-4">
       {/* 検索ボタン */}
       <button
-        className="nes-btn is-primary"
+        className="nes-btn is-primary text-xs lg:text-sm py-2 lg:py-1 px-2 lg:px-3"
         onClick={() => setIsOpen(!isOpen)}
       >
         🔍 検索
@@ -59,14 +59,14 @@ export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: Ta
 
       {/* 検索ポップアップ */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white border-4 border-black p-6 w-11/12 h-5/6 max-w-4xl max-h-[80vh] flex flex-col">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[80] p-2 lg:p-4">
+          <div className="bg-white border-4 border-black p-4 lg:p-6 w-full h-full lg:w-11/12 lg:h-5/6 max-w-4xl max-h-[90vh] lg:max-h-[80vh] flex flex-col">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-2xl font-bold">
+              <h3 className="text-xl lg:text-2xl font-bold">
                 タスク検索
               </h3>
               <button
-                className="nes-btn"
+                className="nes-btn py-2 lg:py-1"
                 onClick={() => setIsOpen(false)}
               >
                 ✕
@@ -226,20 +226,20 @@ export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: Ta
 
       {/* かわいい確認ポップアップ */}
       {confirmingTask && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white border-4 border-pink-300 rounded-lg p-6 max-w-sm w-full mx-4 shadow-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[95] p-4">
+          <div className="bg-white border-4 border-pink-300 rounded-lg p-4 lg:p-6 w-full max-w-sm mx-auto">
             <div className="text-center">
-              <div className="text-4xl mb-4">🎉</div>
-              <h3 className="text-xl font-bold text-pink-600 mb-4">
+              <div className="text-3xl lg:text-4xl mb-4">🎉</div>
+              <h3 className="text-lg lg:text-xl font-bold text-pink-600 mb-4">
                 タスク完了確認
               </h3>
-              <p className="text-gray-700 mb-6">
+              <p className="text-gray-700 mb-6 text-sm lg:text-base">
                 「<span className="font-bold text-pink-500">{confirmingTask.title}</span>」を<br />
                 完了しましたか？
               </p>
               <div className="flex space-x-4 justify-center">
                 <button
-                  className="nes-btn is-success px-6 py-2"
+                  className="nes-btn is-success px-4 lg:px-6 py-2 text-sm lg:text-base"
                   onClick={() => {
                     onToggleTask(confirmingTask.id);
                     setConfirmingTask(null);
@@ -248,7 +248,7 @@ export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: Ta
                   ✨ 完了！
                 </button>
                 <button
-                  className="nes-btn px-6 py-2"
+                  className="nes-btn px-4 lg:px-6 py-2 text-sm lg:text-base"
                   onClick={() => setConfirmingTask(null)}
                 >
                   キャンセル

@@ -2,22 +2,84 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="icon" href="/favicon.ico" />
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" rel="stylesheet" />
     <title>To Do Quest</title>
     <style>
-      body,#root{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center}
-      .pixel-font{font-family:'DotGothic16',monospace;font-weight:600}
+      /* スマホでのビューポート高さ問題を解決 */
+      :root {
+        --vh: 1vh;
+      }
+      
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'DotGothic16', monospace;
+        font-weight: 600;
+        overflow-x: hidden;
+        /* スマホでのアドレスバー対応 */
+        height: 100vh;
+        height: calc(var(--vh, 1vh) * 100);
+      }
+      
+      #root {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* スマホでのアドレスバー対応 */
+        height: 100vh;
+        height: calc(var(--vh, 1vh) * 100);
+      }
+      
+      .pixel-font {
+        font-family: 'DotGothic16', monospace;
+        font-weight: 600;
+      }
+      
       /* custom slow bounce */
-      @keyframes bounce-slow{0%,100%{transform:translateY(0);}50%{transform:translateY(-6%);}}
-      .animate-bounce-slow{animation:bounce-slow 2s infinite;}
+      @keyframes bounce-slow {
+        0%, 100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-6%);
+        }
+      }
+      .animate-bounce-slow {
+        animation: bounce-slow 2s infinite;
+      }
+      
+      /* スマホでのタッチ操作改善 */
+      @media (max-width: 768px) {
+        button {
+          min-height: 44px; /* タッチターゲットの最小サイズ */
+          touch-action: manipulation;
+        }
+        
+        input, select, textarea {
+          font-size: 16px; /* iOSでのズーム防止 */
+        }
+      }
     </style>
   </head>
   <body class="pixel-font">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // スマホでのビューポート高さを動的に調整
+      function setVH() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      }
+      
+      setVH();
+      window.addEventListener('resize', setVH);
+      window.addEventListener('orientationchange', setVH);
+    </script>
   </body>
 </html>

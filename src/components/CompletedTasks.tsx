@@ -36,22 +36,22 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
         className="relative focus:outline-none"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <img src="wood_piskel.gif" className="w-48" alt="wood" />
-        <span className="absolute inset-0 flex items-start justify-center text-white font-bold text-sm pt-12">
+        <img src="wood_piskel.gif" className="w-24 lg:w-32 xl:w-48" alt="wood" />
+        <span className="absolute inset-0 flex items-start justify-center text-white font-bold text-xs lg:text-sm pt-6 lg:pt-8 xl:pt-12">
           完了タスク ({completedCount})
         </span>
       </button>
 
       {/* 完了タスク一覧 */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white border-4 border-black p-6 w-11/12 h-5/6 max-w-4xl max-h-[80vh] flex flex-col">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[90] p-2 lg:p-4">
+          <div className="bg-white border-4 border-black p-4 lg:p-6 w-full h-full lg:w-11/12 lg:h-5/6 max-w-4xl max-h-[90vh] lg:max-h-[80vh] flex flex-col">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-2xl font-bold">
+              <h3 className="text-xl lg:text-2xl font-bold">
                 完了したタスク
               </h3>
               <button
-                className="nes-btn"
+                className="nes-btn py-2 lg:py-1"
                 onClick={() => setIsOpen(false)}
               >
                 ✕
