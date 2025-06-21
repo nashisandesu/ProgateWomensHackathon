@@ -1,5 +1,11 @@
+/* ファイルの先頭にこの行を追加してフォントを読み込む */
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap');
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* ▼▼▼ ここの行を変更 ▼▼▼ */
+  font-family: 'Press Start 2P', 'DotGothic16', monospace;
+  /* ▲▲▲ ここまで ▲▲▲ */
+
   line-height: 1.5;
   font-weight: 400;
 
@@ -41,7 +47,7 @@ button {
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
-  font-family: inherit;
+  font-family: inherit; /* :rootのフォント指定が継承される */
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
