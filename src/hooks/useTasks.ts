@@ -255,11 +255,6 @@ export function useTasks() {
     ));
   };
 
-  // 期限切れ通知を閉じる
-  const closeOverdueNotification = () => {
-    setShowOverdueNotification(false);
-  };
-
   // 期限切れタスクを取得
   const getOverdueTasks = () => {
     const now = new Date();
@@ -288,7 +283,6 @@ export function useTasks() {
     deleteTask,
     editTask,
     extendDeadline,
-    closeOverdueNotification,
     getOverdueTasks,
     getActiveTasks,
   };

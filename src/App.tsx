@@ -34,7 +34,6 @@ function TodoQuest() {
     deleteTask,
     editTask,
     extendDeadline,
-    closeOverdueNotification,
   } = useTasks();
 
   // ユーザー情報がない（ログインしていない）場合は、ログインページを表示
