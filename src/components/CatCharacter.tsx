@@ -16,7 +16,7 @@ interface CatCharacterProps {
 }
 
 export function CatCharacter({ level, xp, hp, xpGain, levelUp, tasks, onToggleTask, onDeleteTask, onEditTask }: CatCharacterProps) {
-  const { selectedCharacter, hasSelectedCharacter, getCurrentGif, resetCharacterSelection } = useCharacter(level);
+  const { selectedCharacter, hasSelectedCharacter, getCurrentGif } = useCharacter(level);
   
   // キャラクターが選択されていない場合はデフォルトの猫を表示
   const characterGif = getCurrentGif() || "cat-animation.gif";
