@@ -12,10 +12,6 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
   const completedTasks = tasks.filter(task => task.done);
   const completedCount = completedTasks.length;
 
-  if (completedCount === 0) {
-    return null;
-  }
-
   // 完了したタスクを日付ごとにグループ化
   const groupedCompletedTasks = completedTasks.reduce((groups, task) => {
     const dueDate = task.due ? new Date(task.due).toLocaleDateString() : '期限なし';
@@ -64,36 +60,42 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
 
             {/* 完了タスク一覧 */}
             <div className="flex-1 overflow-y-auto space-y-6">
-              {sortedDates.map(dueDate => (
-                <div key={dueDate}>
-                  <h4 className="text-lg font-bold mb-3 border-b-2 border-green-500 pb-1">
-                    {dueDate}
-                  </h4>
-                  <ul className="space-y-2">
-                    {groupedCompletedTasks[dueDate].map(task => (
-                      <li key={task.id} className="bg-green-50 p-3 rounded border-2 border-green-300">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <span className="line-through opacity-50 text-lg">{task.title}</span>
-                            <div className="text-sm text-gray-600">
-                              {task.due && `期限: ${new Date(task.due).toLocaleDateString()}`}
+              {completedCount === 0 ? (
+                <div className="text-center text-gray-500 text-lg py-8">
+                  完了したタスクはありません
+                </div>
+              ) : (
+                sortedDates.map(dueDate => (
+                  <div key={dueDate}>
+                    <h4 className="text-lg font-bold mb-3 border-b-2 border-green-500 pb-1">
+                      {dueDate}
+                    </h4>
+                    <ul className="space-y-2">
+                      {groupedCompletedTasks[dueDate].map(task => (
+                        <li key={task.id} className="bg-green-50 p-3 rounded border-2 border-green-300">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <span className="line-through opacity-50 text-lg">{task.title}</span>
+                              <div className="text-sm text-gray-600">
+                                {task.due && `期限: ${new Date(task.due).toLocaleDateString()}`}
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                              <span className="nes-badge"><span className="is-dark">{task.point}pt</span></span>
+                              <button
+                                className="nes-btn is-warning w-28 h-12"
+                                onClick={() => onToggleTask(task.id)}
+                              >
+                                取り消し
+                              </button>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-3">
-                            <span className="nes-badge"><span className="is-dark">{task.point}pt</span></span>
-                            <button
-                              className="nes-btn is-warning w-28 h-12"
-                              onClick={() => onToggleTask(task.id)}
-                            >
-                              取り消し
-                            </button>
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
