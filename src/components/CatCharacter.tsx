@@ -16,7 +16,7 @@ interface CatCharacterProps {
 
 export function CatCharacter({ level, xp, hp, xpGain, levelUp, tasks, onToggleTask, onDeleteTask, onEditTask }: CatCharacterProps) {
   return (
-    <div className="w-full md:w-1/2 flex flex-col items-center justify-center border-4 border-black relative">
+    <div className="w-full md:w-1/2 flex flex-col items-center justify-center border-4 border-black relative h-auto md:h-full">
       <div className="absolute -top-6 bg-white border-4 border-black px-4 py-2">Lv.{level}</div>
       
       {/* 経験値・HP・レベル情報を猫の下に表示 */}

@@ -16,6 +16,7 @@ export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: Ta
   const [editPoint, setEditPoint] = useState(10);
   const [editDue, setEditDue] = useState('');
   const [showMenu, setShowMenu] = useState<string | null>(null);
+  const [confirmingTask, setConfirmingTask] = useState<Task | null>(null);
 
   // 検索フィルタリング
   const filteredTasks = tasks.filter(task => 
@@ -138,7 +139,7 @@ export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: Ta
                               <span className="nes-badge"><span className="is-dark">{task.point}pt</span></span>
                               <button
                                 className="nes-btn is-success w-20 h-10"
-                                onClick={() => onToggleTask(task.id)}
+                                onClick={() => setConfirmingTask(task)}
                               >
                                 完了
                               </button>
@@ -218,6 +219,41 @@ export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: Ta
                   検索結果が見つかりませんでした
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* かわいい確認ポップアップ */}
+      {confirmingTask && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white border-4 border-pink-300 rounded-lg p-6 max-w-sm w-full mx-4 shadow-lg">
+            <div className="text-center">
+              <div className="text-4xl mb-4">🎉</div>
+              <h3 className="text-xl font-bold text-pink-600 mb-4">
+                タスク完了確認
+              </h3>
+              <p className="text-gray-700 mb-6">
+                「<span className="font-bold text-pink-500">{confirmingTask.title}</span>」を<br />
+                完了しましたか？
+              </p>
+              <div className="flex space-x-4 justify-center">
+                <button
+                  className="nes-btn is-success px-6 py-2"
+                  onClick={() => {
+                    onToggleTask(confirmingTask.id);
+                    setConfirmingTask(null);
+                  }}
+                >
+                  ✨ 完了！
+                </button>
+                <button
+                  className="nes-btn px-6 py-2"
+                  onClick={() => setConfirmingTask(null)}
+                >
+                  キャンセル
+                </button>
+              </div>
             </div>
           </div>
         </div>
