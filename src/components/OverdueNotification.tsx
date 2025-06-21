@@ -2,7 +2,6 @@ import { useState } from 'react';
 import type { Task } from '../types';
 
 interface OverdueNotificationProps {
-  tasks: Task[];
   overdueTasks: Task[];
   showNotification: boolean;
   onToggleTask: (id: string) => void;
@@ -12,7 +11,6 @@ interface OverdueNotificationProps {
 }
 
 export function OverdueNotification({ 
-  tasks, 
   overdueTasks,
   showNotification,
   onToggleTask, 
@@ -22,13 +20,6 @@ export function OverdueNotification({
 }: OverdueNotificationProps) {
   const [extendingTask, setExtendingTask] = useState<string | null>(null);
   const [newDeadline, setNewDeadline] = useState('');
-
-  // 通知を閉じる
-  const handleClose = () => {
-    onCloseNotification();
-    setExtendingTask(null);
-    setNewDeadline('');
-  };
 
   // タスクを完了させる
   const handleCompleteTask = (taskId: string) => {

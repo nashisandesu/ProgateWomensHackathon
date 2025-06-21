@@ -116,7 +116,6 @@ function TodoQuest() {
 
       {/* 期限切れタスク通知 */}
       <OverdueNotification 
-        tasks={tasks}
         overdueTasks={overdueTasks}
         showNotification={showOverdueNotification}
         onToggleTask={toggleTask}
