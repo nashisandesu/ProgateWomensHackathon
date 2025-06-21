@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { CredentialResponse } from '@react-oauth/google';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { LoginPage, CatCharacter, TaskList, AddTaskForm } from './components';
+import { LoginPage, CatCharacter, TaskList, AddTaskForm, OverdueNotification } from './components';
 import { useTasks } from './hooks';
 import { GOOGLE_CLIENT_ID } from './utils';
 
@@ -26,10 +26,15 @@ function TodoQuest() {
     hp,
     xpGain,
     levelUp,
+    hpLoss,
+    overdueTasks,
+    showOverdueNotification,
     toggleTask,
     addTask,
     deleteTask,
     editTask,
+    extendDeadline,
+    closeOverdueNotification,
   } = useTasks();
 
   // ユーザー情報がない（ログインしていない）場合は、ログインページを表示
@@ -48,6 +53,7 @@ function TodoQuest() {
           hp={hp}
           xpGain={xpGain}
           levelUp={levelUp}
+          hpLoss={hpLoss}
           tasks={tasks}
           onToggleTask={toggleTask}
           onDeleteTask={deleteTask}
@@ -107,6 +113,17 @@ function TodoQuest() {
           </div>
         </div>
       )}
+
+      {/* 期限切れタスク通知 */}
+      <OverdueNotification 
+        tasks={tasks}
+        overdueTasks={overdueTasks}
+        showNotification={showOverdueNotification}
+        onToggleTask={toggleTask}
+        onExtendDeadline={extendDeadline}
+        onDeleteTask={deleteTask}
+        onCloseNotification={closeOverdueNotification}
+      />
     </div>
   );
 }

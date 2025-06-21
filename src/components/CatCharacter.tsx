@@ -9,13 +9,25 @@ interface CatCharacterProps {
   hp: number;
   xpGain: { point: number; show: boolean };
   levelUp: { show: boolean };
+  hpLoss: { amount: number; show: boolean };
   tasks: Task[];
   onToggleTask: (id: string) => void;
   onDeleteTask: (id: string) => void;
   onEditTask: (id: string, newTitle: string, newPoint: number, newDue?: string) => void;
 }
 
-export function CatCharacter({ level, xp, hp, xpGain, levelUp, tasks, onToggleTask, onDeleteTask, onEditTask }: CatCharacterProps) {
+export function CatCharacter({ 
+  level, 
+  xp, 
+  hp, 
+  xpGain, 
+  levelUp, 
+  hpLoss, 
+  tasks, 
+  onToggleTask, 
+  onDeleteTask, 
+  onEditTask
+}: CatCharacterProps) {
   const { selectedCharacter, hasSelectedCharacter, getCurrentGif } = useCharacter(level);
   
   // キャラクターが選択されていない場合はデフォルトの猫を表示
@@ -85,6 +97,13 @@ export function CatCharacter({ level, xp, hp, xpGain, levelUp, tasks, onToggleTa
       {levelUp.show && (
         <div className="absolute left-1/2 transform -translate-x-1/2 z-10 text-xl lg:text-3xl font-bold whitespace-nowrap text-green-400 animate-bounce" style={{ top: '5%' }}>
           LEVEL UP! 🎉
+        </div>
+      )}
+      
+      {/* HP減少アニメーションを猫の上に表示 */}
+      {hpLoss.show && (
+        <div className="absolute left-1/2 transform -translate-x-1/2 z-10 text-lg lg:text-2xl font-bold whitespace-nowrap text-red-400 animate-pulse" style={{ top: '10%' }}>
+          HP -{hpLoss.amount} 💔
         </div>
       )}
       

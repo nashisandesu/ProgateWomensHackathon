@@ -198,8 +198,11 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
 export { TaskItem };
 
 export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: TaskListProps) {
-  // 未完了のタスクのみをフィルタリング
-  const incompleteTasks = tasks.filter(task => !task.done);
+  // 未完了のタスクのみをフィルタリング（期限切れは除外）
+  const now = new Date();
+  const incompleteTasks = tasks.filter(task => 
+    !task.done && (!task.due || new Date(task.due) >= now)
+  );
   
   // タスクを期限ごとにグループ化
   const groupedTasks = incompleteTasks.reduce((groups, task) => {

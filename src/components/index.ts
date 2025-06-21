@@ -3,4 +3,5 @@ export { CatCharacter } from './CatCharacter';
 export { TaskList } from './TaskList';
 export { AddTaskForm } from './AddTaskForm';
 export { CompletedTasks } from './CompletedTasks';
-export { TaskSearch } from './TaskSearch'; 
+export { TaskSearch } from './TaskSearch';
+export { OverdueNotification } from './OverdueNotification'; 
