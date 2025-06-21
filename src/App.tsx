@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { CredentialResponse } from '@react-oauth/google';
+import type { TokenResponse } from '@react-oauth/google';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { LoginPage, CatCharacter, TaskList, AddTaskForm, OverdueNotification } from './components';
 import { useTasks } from './hooks';
@@ -16,7 +16,7 @@ export default function App() {
 
 // --- ToDoアプリの本体 ---
 function TodoQuest() {
-  const [user, setUser] = useState<CredentialResponse | null>(null);
+  const [user, setUser] = useState<TokenResponse | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   
   const {
