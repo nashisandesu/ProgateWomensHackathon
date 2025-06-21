@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Task } from '../types';
 import { calculateExperiencePoints } from '../utils/gemini';
+import { useTaskSort } from '../hooks/useTaskSort';
 
 interface TaskListProps {
   tasks: Task[];
@@ -272,8 +273,11 @@ export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: Task
     !task.done && (!task.due || new Date(task.due) >= now)
   );
   
-  // タスクを期限ごとにグループ化
-  const groupedTasks = incompleteTasks.reduce((groups, task) => {
+  // 期限順ソート機能を使用
+  const { sortedTasks } = useTaskSort(incompleteTasks);
+  
+  // タスクを期限ごとにグループ化（ソート済みタスクを使用）
+  const groupedTasks = sortedTasks.reduce((groups, task) => {
     const dueDate = task.due ? new Date(task.due).toLocaleDateString('ja-JP', {
       month: 'long',
       day: 'numeric',
@@ -285,7 +289,7 @@ export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: Task
     }
     groups[dueDate].push(task);
     return groups;
-  }, {} as Record<string, typeof incompleteTasks>);
+  }, {} as Record<string, typeof sortedTasks>);
 
   // 期限順にソート（期限なしは最後）
   const sortedDates = Object.keys(groupedTasks).sort((a, b) => {

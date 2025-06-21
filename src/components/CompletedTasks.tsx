@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Task } from '../types';
+import { useTaskSort } from '../hooks/useTaskSort';
 
 interface CompletedTasksProps {
   tasks: Task[];
@@ -12,8 +13,11 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
   const completedTasks = tasks.filter(task => task.done);
   const completedCount = completedTasks.length;
 
+  // 期限順ソート機能を使用
+  const { sortedTasks } = useTaskSort(completedTasks);
+
   // 完了したタスクを日付ごとにグループ化
-  const groupedCompletedTasks = completedTasks.reduce((groups, task) => {
+  const groupedCompletedTasks = sortedTasks.reduce((groups, task) => {
     const dueDate = task.due ? new Date(task.due).toLocaleDateString('ja-JP', {
       month: 'long',
       day: 'numeric',
@@ -25,7 +29,7 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
     }
     groups[dueDate].push(task);
     return groups;
-  }, {} as Record<string, typeof completedTasks>);
+  }, {} as Record<string, typeof sortedTasks>);
 
   // 日付順にソート（期限なしは最後）
   const sortedDates = Object.keys(groupedCompletedTasks).sort((a, b) => {
@@ -81,14 +85,6 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
                           <div className="flex justify-between items-center">
                             <div>
                               <span className="line-through opacity-50 text-lg">{task.title}</span>
-                              <div className="text-sm text-gray-600">
-                                {task.due && `期限: ${new Date(task.due).toLocaleDateString('ja-JP', {
-                                  month: 'long',
-                                  day: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}`}
-                              </div>
                             </div>
                             <div className="flex items-center space-x-3">
                               <span className="text-sm font-black text-gray-800 w-12 text-right">
