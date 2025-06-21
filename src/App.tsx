@@ -54,7 +54,7 @@ function TodoQuest() {
       />
 
       {/* ─ Right Task Panel ─ */}
-      <div className="w-full md:w-1/2 h-1/2 md:h-full border-4 border-black p-4 flex flex-col">
+      <div className="w-full md:w-1/2 h-auto md:h-full border-4 border-black p-4 flex flex-col flex-1">
         <h2 className="text-xl mb-4">今日のタスク</h2>
         <TaskList
           tasks={tasks}
