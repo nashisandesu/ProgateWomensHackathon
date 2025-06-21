@@ -184,7 +184,7 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
           <p className="flex justify-center space-x-1">HP: {Array.from({ length: hp }).map((_, i) => 
             <img
             key={i}
-            src="/docs/heart_Piskel.gif"
+            src="heart_Piskel.gif"
             className="inline w-6 h-6 align-middle ml-1"
             alt="heart"
             />
@@ -206,7 +206,7 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
           </div>
         )}
         
-        <img src="/docs/cat-animation.gif" className="w-64 h-64" alt="cat" />
+        <img src="cat-animation.gif" className="w-64 h-64" alt="cat" />
       </div>
 
       {/* ─ Right Task Panel ─ */}
