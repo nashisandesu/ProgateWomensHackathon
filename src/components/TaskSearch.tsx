@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Task } from '../types';
+import { TaskItem } from './TaskList';
 
 interface TaskSearchProps {
   tasks: Task[];
@@ -11,12 +12,6 @@ interface TaskSearchProps {
 export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: TaskSearchProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [editingTask, setEditingTask] = useState<string | null>(null);
-  const [editTitle, setEditTitle] = useState('');
-  const [editPoint, setEditPoint] = useState(10);
-  const [editDue, setEditDue] = useState('');
-  const [showMenu, setShowMenu] = useState<string | null>(null);
-  const [confirmingTask, setConfirmingTask] = useState<Task | null>(null);
 
   // 検索フィルタリング
   const filteredTasks = tasks.filter(task => 
@@ -28,30 +23,11 @@ export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: Ta
   const incompleteTasks = filteredTasks.filter(task => !task.done);
   const completedTasks = filteredTasks.filter(task => task.done);
 
-  const handleEdit = (task: Task) => {
-    setEditingTask(task.id);
-    setEditTitle(task.title);
-    setEditPoint(task.point);
-    setEditDue(task.due || '');
-    setShowMenu(null);
-  };
-
-  const handleSaveEdit = () => {
-    if (editingTask) {
-      onEditTask(editingTask, editTitle, editPoint, editDue);
-      setEditingTask(null);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingTask(null);
-  };
-
   return (
     <div className="absolute bottom-1 right-1 lg:bottom-4 lg:right-4">
       {/* 検索ボタン */}
       <button
-        className="nes-btn is-primary text-xs lg:text-sm py-2 lg:py-1 px-2 lg:px-3"
+        className="nes-btn is-primary text-xs lg:text-sm py-1 lg:py-1 px-2 lg:px-2"
         onClick={() => setIsOpen(!isOpen)}
       >
         🔍 検索
@@ -89,93 +65,18 @@ export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: Ta
               {/* 未完了タスク */}
               {incompleteTasks.length > 0 && (
                 <div>
-                  <h4 className="text-lg font-bold mb-3 border-b-2 border-blue-500 pb-1">
+                  <h3 className="text-lg font-bold mb-3 border-b-2 border-blue-500 pb-1">
                     未完了タスク ({incompleteTasks.length})
-                  </h4>
+                  </h3>
                   <ul className="space-y-2">
                     {incompleteTasks.map(task => (
-                      <li key={task.id} className="bg-blue-50 p-3 rounded border-2 border-blue-300">
-                        {editingTask === task.id ? (
-                          <div className="space-y-2">
-                            <input
-                              className="nes-input"
-                              value={editTitle}
-                              onChange={(e) => setEditTitle(e.target.value)}
-                              placeholder="タスク名"
-                            />
-                            <input
-                              type="number"
-                              className="nes-input"
-                              min={5}
-                              max={100}
-                              step={5}
-                              value={editPoint}
-                              onChange={(e) => setEditPoint(Number(e.target.value))}
-                            />
-                            <input
-                              type="date"
-                              className="nes-input"
-                              value={editDue}
-                              onChange={(e) => setEditDue(e.target.value)}
-                            />
-                            <div className="flex space-x-2">
-                              <button className="nes-btn is-success" onClick={handleSaveEdit}>
-                                保存
-                              </button>
-                              <button className="nes-btn" onClick={handleCancelEdit}>
-                                キャンセル
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <span className="text-lg">{task.title}</span>
-                              <div className="text-sm text-gray-600">
-                                {task.due && `期限: ${new Date(task.due).toLocaleDateString()}`}
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <span className="nes-badge"><span className="is-dark">{task.point}pt</span></span>
-                              <button
-                                className="nes-btn is-success w-20 h-10"
-                                onClick={() => setConfirmingTask(task)}
-                              >
-                                完了
-                              </button>
-                              <div className="relative">
-                                <button
-                                  className="nes-btn"
-                                  onClick={() => setShowMenu(showMenu === task.id ? null : task.id)}
-                                >
-                                  ⋯
-                                </button>
-                                {showMenu === task.id && (
-                                  <div className="absolute right-0 top-full mt-1 bg-white border-2 border-black p-2 z-10">
-                                    <div className="flex space-x-2">
-                                      <button
-                                        className="nes-btn whitespace-nowrap"
-                                        onClick={() => handleEdit(task)}
-                                      >
-                                        編集
-                                      </button>
-                                      <button
-                                        className="nes-btn is-error whitespace-nowrap"
-                                        onClick={() => {
-                                          onDeleteTask(task.id);
-                                          setShowMenu(null);
-                                        }}
-                                      >
-                                        削除
-                                      </button>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </li>
+                      <TaskItem
+                        key={task.id}
+                        task={task}
+                        onToggle={onToggleTask}
+                        onDelete={onDeleteTask}
+                        onEdit={onEditTask}
+                      />
                     ))}
                   </ul>
                 </div>
@@ -189,7 +90,7 @@ export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: Ta
                   </h4>
                   <ul className="space-y-2">
                     {completedTasks.map(task => (
-                      <li key={task.id} className="bg-green-50 p-3 rounded border-2 border-green-300">
+                      <li key={task.id} className="bg-green-50 p-3 rounded-lg border-2 border-green-300">
                         <div className="flex justify-between items-center">
                           <div>
                             <span className="line-through opacity-50 text-lg">{task.title}</span>
@@ -198,7 +99,9 @@ export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: Ta
                             </div>
                           </div>
                           <div className="flex items-center space-x-3">
-                            <span className="nes-badge"><span className="is-dark">{task.point}pt</span></span>
+                            <span className="text-sm font-black text-gray-800 w-12 text-right">
+                              {task.point}pt
+                            </span>
                             <button
                               className="nes-btn is-warning w-28 h-12"
                               onClick={() => onToggleTask(task.id)}
@@ -219,41 +122,6 @@ export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: Ta
                   検索結果が見つかりませんでした
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* かわいい確認ポップアップ */}
-      {confirmingTask && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[95] p-4">
-          <div className="bg-white border-4 border-pink-300 rounded-lg p-4 lg:p-6 w-full max-w-sm mx-auto">
-            <div className="text-center">
-              <div className="text-3xl lg:text-4xl mb-4">🎉</div>
-              <h3 className="text-lg lg:text-xl font-bold text-pink-600 mb-4">
-                タスク完了確認
-              </h3>
-              <p className="text-gray-700 mb-6 text-sm lg:text-base">
-                「<span className="font-bold text-pink-500">{confirmingTask.title}</span>」を<br />
-                完了しましたか？
-              </p>
-              <div className="flex space-x-4 justify-center">
-                <button
-                  className="nes-btn is-success px-4 lg:px-6 py-2 text-sm lg:text-base"
-                  onClick={() => {
-                    onToggleTask(confirmingTask.id);
-                    setConfirmingTask(null);
-                  }}
-                >
-                  ✨ 完了！
-                </button>
-                <button
-                  className="nes-btn px-4 lg:px-6 py-2 text-sm lg:text-base"
-                  onClick={() => setConfirmingTask(null)}
-                >
-                  キャンセル
-                </button>
-              </div>
             </div>
           </div>
         </div>

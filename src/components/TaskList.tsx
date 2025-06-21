@@ -42,7 +42,7 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
 
   if (isEditing) {
     return (
-      <li className="bg-gray-100 p-2 rounded">
+      <li className="bg-blue-50 border-2 border-blue-300 p-2 rounded">
         <div className="flex flex-col space-y-2 w-full">
           <input
             className="nes-input"
@@ -95,11 +95,11 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
   }
 
   return (
-    <li className="bg-gray-100 p-3 rounded-lg">
+    <li className="bg-blue-50 border-2 border-blue-400 p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow">
       <div className="w-full flex justify-between items-center gap-x-3">
         {/* Task Title */}
         <div className="flex-1 min-w-0">
-          <p className="text-gray-800 break-words">
+          <p className="text-gray-800 break-words font-medium">
             {task.title}
           </p>
         </div>
@@ -187,6 +187,8 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
     </li>
   );
 }
+
+export { TaskItem };
 
 export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: TaskListProps) {
   // 未完了のタスクのみをフィルタリング

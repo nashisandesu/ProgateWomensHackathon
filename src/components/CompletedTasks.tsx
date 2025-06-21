@@ -36,8 +36,8 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
         className="relative focus:outline-none"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <img src="wood_piskel.gif" className="w-24 lg:w-32 xl:w-48" alt="wood" />
-        <span className="absolute inset-0 flex items-start justify-center text-white font-bold text-xs lg:text-sm pt-6 lg:pt-8 xl:pt-12">
+        <img src="wood_piskel.gif" className="w-16 lg:w-20 xl:w-24" alt="wood" />
+        <span className="absolute inset-0 flex items-start justify-center text-white font-bold text-xs lg:text-sm pt-4 lg:pt-5 xl:pt-6">
           完了タスク ({completedCount})
         </span>
       </button>
@@ -81,7 +81,9 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
                               </div>
                             </div>
                             <div className="flex items-center space-x-3">
-                              <span className="nes-badge"><span className="is-dark">{task.point}pt</span></span>
+                              <span className="text-sm font-black text-gray-800 w-12 text-right">
+                                {task.point}pt
+                              </span>
                               <button
                                 className="nes-btn is-warning w-28 h-12"
                                 onClick={() => onToggleTask(task.id)}

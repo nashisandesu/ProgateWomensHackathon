@@ -58,19 +58,15 @@ export function CatCharacter({ level, xp, hp, xpGain, levelUp, tasks, onToggleTa
       <img src="cat-animation.gif" className="w-48 h-48 lg:w-64 lg:h-64" alt="cat" />
       
       {/* 完了タスクボタン - 左下に配置 */}
-      <div className="absolute bottom-1 left-1 lg:bottom-4 lg:left-4">
-        <CompletedTasks tasks={tasks} onToggleTask={onToggleTask} />
-      </div>
+      <CompletedTasks tasks={tasks} onToggleTask={onToggleTask} />
       
       {/* 検索ボタン - 右下に配置 */}
-      <div className="absolute bottom-1 right-1 lg:bottom-4 lg:right-4">
-        <TaskSearch 
-          tasks={tasks} 
-          onToggleTask={onToggleTask} 
-          onDeleteTask={onDeleteTask} 
-          onEditTask={onEditTask} 
-        />
-      </div>
+      <TaskSearch 
+        tasks={tasks} 
+        onToggleTask={onToggleTask} 
+        onDeleteTask={onDeleteTask} 
+        onEditTask={onEditTask} 
+      />
     </div>
   );
 } 
