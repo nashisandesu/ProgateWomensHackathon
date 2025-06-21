@@ -28,13 +28,20 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         height: '100vh',
       }}
     >
-      <h1 className="text-6xl font-bold text-white mb-16 mt-8">To Do クエスト</h1>
+      <div className="relative mb-16 mt-12">
+        <h1
+          className="text-8xl font-extrabold text-white text-center select-none"
+          style={{ textShadow: '8px 8px 0 #000, 4px 4px 0 #000' }}
+        >
+          To Do クエスト
+        </h1>
+      </div>
 
       <button
         onClick={() => login()}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-xl shadow-lg transform transition duration-300 hover:scale-105"
+        className="nes-btn is-primary w-60 h-16 text-xl font-bold"
       >
-        LET'S PLAY
+        🔑　LET'S PLAY
       </button>
     </div>
   );
