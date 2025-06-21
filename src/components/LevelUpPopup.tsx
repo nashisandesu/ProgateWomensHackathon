@@ -12,7 +12,6 @@ export function LevelUpPopup({ show, levelUpData, onClose }: LevelUpPopupProps) 
   if (!show || !levelUpData) return null;
 
   const characterGif = getCurrentGif();
-  console.log('characterGif', characterGif);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[200] p-4">
