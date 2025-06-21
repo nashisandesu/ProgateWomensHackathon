@@ -40,6 +40,9 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
     }
   }, [editTitle, isEditing]);
 
+  // 期限切れ判定
+  const isOverdue = !task.done && task.due && new Date(task.due) < new Date();
+
   if (isEditing) {
     return (
       <li className="bg-blue-50 border-2 border-blue-300 p-2 rounded">
@@ -95,7 +98,11 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
   }
 
   return (
-    <li className="bg-blue-50 border-2 border-blue-400 p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+    <li
+      className={`border-2 p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow ${
+        isOverdue ? 'bg-red-100 border-red-300' : 'bg-blue-50 border-blue-400'
+      }`}
+    >
       <div className="w-full flex justify-between items-center gap-x-3">
         {/* Task Title */}
         <div className="flex-1 min-w-0">
@@ -233,4 +240,4 @@ export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: Task
       ))}
     </ul>
   );
-} 
+}
