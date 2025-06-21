@@ -35,15 +35,6 @@ export function CatCharacter({
   // キャラクター画像のパスを取得
   const characterGif = getCurrentGif();
   
-  // デバッグ用ログ
-  console.log('CatCharacter render:', {
-    level,
-    selectedCharacter,
-    hasSelectedCharacter,
-    characterGif,
-    getCurrentGif: getCurrentGif()
-  });
-
   return (
     <div
       className="w-full lg:w-1/2 flex flex-col items-center justify-center border-4 border-black relative h-auto lg:h-full p-2 lg:p-4"
@@ -90,7 +81,7 @@ export function CatCharacter({
             color: currentMessage.type === 'xpGain' ? '#fbbf24' : 
                    currentMessage.type === 'levelUp' ? '#34d399' : 
                    currentMessage.type === 'hpLoss' ? '#f87171' : '#ffffff',
-            textShadow: '-1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white'
+            textShadow: '-1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black'
           }}
         >
           {currentMessage.content}

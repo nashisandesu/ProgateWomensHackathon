@@ -86,6 +86,8 @@ export function useTasks() {
 
   // 統一された期限切れタスクのチェックとHP減少
   useEffect(() => {
+    if (isLoading) return;
+
     const checkOverdueTasks = () => {
       const now = new Date();
       const overdueTasks = tasks.filter(t => !t.done && t.due && new Date(t.due) < now);
@@ -101,26 +103,23 @@ export function useTasks() {
       
       // 新しい期限切れタスクがある場合、HP減少アニメーションを表示し、HP損失を記録
       if (newOverdueTasks.length > 0) {
-        console.log('HP減少検出:', newOverdueTasks.length, '件');
         addMessageToQueue({ type: 'hpLoss', content: `HP -${newOverdueTasks.length} 💔`, amount: newOverdueTasks.length });
         setOverdueHpLoss(prev => {
           const newLoss = prev + newOverdueTasks.length;
-          console.log('HP損失更新:', prev, '→', newLoss);
           return newLoss;
         });
+        setLastHpCheck(now.getTime());
       }
-      
-      setLastHpCheck(now.getTime());
     };
 
     // 初回チェック
     checkOverdueTasks();
 
-    // 1分ごとにチェック
-    const interval = setInterval(checkOverdueTasks, 60000);
+    // 10秒ごとにチェック
+    const interval = setInterval(checkOverdueTasks, 10000);
 
     return () => clearInterval(interval);
-  }, [tasks, lastHpCheck]);
+  }, [tasks, lastHpCheck, isLoading]);
 
   // リアルタイム期限切れチェック（より頻繁にチェック）
   useEffect(() => {
@@ -218,17 +217,20 @@ export function useTasks() {
           
           // タスクが完了状態になった場合、経験値Getアニメーションを表示
           if (!wasDone && newDone) {
-            const currentXp = tasks.filter(task => task.done).reduce((sum, task) => sum + task.point, 0);
-            const newXp = currentXp + t.point;
+            // 更新後のタスク配列を使用して経験値を計算
+            const updatedTasksForCalculation = prev.map(task => 
+              task.id === id ? { ...task, done: newDone } : task
+            );
+            const currentXp = updatedTasksForCalculation.filter(task => task.done).reduce((sum, task) => sum + task.point, 0);
             const currentLevel = Math.floor(currentXp / 100) + 1;
-            const newLevel = Math.floor(newXp / 100) + 1;
             
-            // レベルアップした場合
-            if (newLevel > currentLevel) {
+            // 経験値ゲットを先に表示
+            addMessageToQueue({ type: 'xpGain', content: `EXP Get! +${t.point} XP`, point: t.point });
+            
+            // レベルアップした場合は後で表示
+            if (currentLevel > Math.floor((currentXp - t.point) / 100) + 1) {
               addMessageToQueue({ type: 'levelUp', content: 'LEVEL UP! 🎉' });
             }
-            
-            addMessageToQueue({ type: 'xpGain', content: `EXP Get! +${t.point} XP`, point: t.point });
           }
           
           return { ...t, done: newDone };
@@ -278,7 +280,14 @@ export function useTasks() {
       ...message,
       id: uuid()
     };
-    setMessageQueue(prev => [...prev, newMessage]);
+    setMessageQueue(prev => {
+      // 同じタイプのメッセージが既にキューにある場合は追加しない
+      const hasSameType = prev.some(msg => msg.type === message.type);
+      if (hasSameType) {
+        return prev;
+      }
+      return [...prev, newMessage];
+    });
   };
 
   // メッセージキューを処理する関数

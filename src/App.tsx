@@ -34,16 +34,6 @@ function TodoQuest() {
     extendDeadline,
   } = useTasks();
 
-  // デバッグ用ログ
-  console.log('TodoQuest render:', {
-    user,
-    level,
-    xp,
-    hp,
-    currentMessage,
-    tasksCount: tasks.length
-  });
-
   // ユーザー情報がない（ログインしていない）場合は、ログインページを表示
   if (!user) {
     return <LoginPage onLogin={setUser} />;

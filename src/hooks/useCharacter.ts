@@ -95,7 +95,6 @@ export function useCharacter(level: number): UseCharacterReturn {
     // レベルを1-5の範囲に正規化
     const normalizedLevel = ((level - 1) % 5) + 1;
     const gifPath = `/character${selectedCharacter}/level${normalizedLevel}.gif`;
-    console.log('Current GIF path:', gifPath);
     return gifPath;
   };
 
