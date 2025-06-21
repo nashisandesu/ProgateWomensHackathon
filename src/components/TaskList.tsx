@@ -98,26 +98,16 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
       <div className="w-full">
         <div className="flex justify-between items-center">
           <div>
-            <span className={task.done ? 'line-through opacity-50' : ''}>{task.title}</span>
+            <span>{task.title}</span>
           </div>
           <div className="flex items-center space-x-2">
             <span className="nes-badge"><span className="is-dark">{task.point}pt</span></span>
-            {!task.done && (
-              <button
-                className="nes-btn is-success w-24 h-12"
-                onClick={() => onToggle(task.id)}
-              >
-                完了
-              </button>
-            )}
-            {task.done && (
-              <button
-                className="nes-btn is-warning w-24 h-12"
-                onClick={() => onToggle(task.id)}
-              >
-                取り消し
-              </button>
-            )}
+            <button
+              className="nes-btn is-success w-24 h-12"
+              onClick={() => onToggle(task.id)}
+            >
+              完了
+            </button>
             <div className="relative">
               <button
                 className="nes-btn"
@@ -158,15 +148,18 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
 }
 
 export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: TaskListProps) {
+  // 未完了のタスクのみをフィルタリング
+  const incompleteTasks = tasks.filter(task => !task.done);
+  
   // タスクを期限ごとにグループ化
-  const groupedTasks = tasks.reduce((groups, task) => {
+  const groupedTasks = incompleteTasks.reduce((groups, task) => {
     const dueDate = task.due ? new Date(task.due).toLocaleDateString() : '期限なし';
     if (!groups[dueDate]) {
       groups[dueDate] = [];
     }
     groups[dueDate].push(task);
     return groups;
-  }, {} as Record<string, typeof tasks>);
+  }, {} as Record<string, typeof incompleteTasks>);
 
   // 期限順にソート（期限なしは最後）
   const sortedDates = Object.keys(groupedTasks).sort((a, b) => {

@@ -1,12 +1,20 @@
+import { CompletedTasks } from './CompletedTasks';
+import { TaskSearch } from './TaskSearch';
+import type { Task } from '../types';
+
 interface CatCharacterProps {
   level: number;
   xp: number;
   hp: number;
   xpGain: { point: number; show: boolean };
   levelUp: { show: boolean };
+  tasks: Task[];
+  onToggleTask: (id: string) => void;
+  onDeleteTask: (id: string) => void;
+  onEditTask: (id: string, newTitle: string, newPoint: number, newDue?: string) => void;
 }
 
-export function CatCharacter({ level, xp, hp, xpGain, levelUp }: CatCharacterProps) {
+export function CatCharacter({ level, xp, hp, xpGain, levelUp, tasks, onToggleTask, onDeleteTask, onEditTask }: CatCharacterProps) {
   return (
     <div className="w-full md:w-1/2 flex flex-col items-center justify-center border-4 border-black relative">
       <div className="absolute -top-6 bg-white border-4 border-black px-4 py-2">Lv.{level}</div>
@@ -49,6 +57,17 @@ export function CatCharacter({ level, xp, hp, xpGain, levelUp }: CatCharacterPro
       )}
       
       <img src="cat-animation.gif" className="w-64 h-64" alt="cat" />
+      
+      {/* 完了タスクボタン */}
+      <CompletedTasks tasks={tasks} onToggleTask={onToggleTask} />
+      
+      {/* 検索ボタン */}
+      <TaskSearch 
+        tasks={tasks} 
+        onToggleTask={onToggleTask}
+        onDeleteTask={onDeleteTask}
+        onEditTask={onEditTask}
+      />
     </div>
   );
 } 

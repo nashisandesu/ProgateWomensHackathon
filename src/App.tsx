@@ -47,6 +47,10 @@ function TodoQuest() {
         hp={hp}
         xpGain={xpGain}
         levelUp={levelUp}
+        tasks={tasks}
+        onToggleTask={toggleTask}
+        onDeleteTask={deleteTask}
+        onEditTask={editTask}
       />
 
       {/* ─ Right Task Panel ─ */}
