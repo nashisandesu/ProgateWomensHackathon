@@ -24,6 +24,8 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [isEditCalculating, setIsEditCalculating] = useState(false);
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+  const [editTitleError, setEditTitleError] = useState('');
+  const [editDueError, setEditDueError] = useState('');
 
   // 編集時のタスク名変更で経験値を自動計算
   useEffect(() => {
@@ -40,6 +42,59 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
     }
   }, [editTitle, isEditing]);
 
+  // 編集開始時の初期化
+  const handleStartEdit = () => {
+    setIsEditing(true);
+    setShowMenu(false);
+    setEditTitleError('');
+    setEditDueError('');
+  };
+
+  // 編集時のタスク名変更処理
+  const handleEditTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEditTitle(value);
+    if (value.trim()) {
+      setEditTitleError('');
+    }
+  };
+
+  // 編集時の期限変更処理
+  const handleEditDueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedValue = e.target.value;
+    setEditDue(selectedValue);
+    
+    if (!selectedValue) {
+      setEditDueError('');
+      return;
+    }
+    
+    const selectedDate = new Date(selectedValue);
+    const now = new Date();
+    
+    if (selectedDate < now) {
+      setEditDueError('過去の日時は選択できません');
+    } else {
+      setEditDueError('');
+    }
+  };
+
+  // 編集保存処理
+  const handleSaveEdit = () => {
+    // タスク名の検証
+    if (!editTitle.trim()) {
+      setEditTitleError('タスク名を入力してください');
+      return;
+    }
+    
+    if (editDueError) return;
+    
+    onEdit(task.id, editTitle, editPoint, editDue);
+    setIsEditing(false);
+    setEditTitleError('');
+    setEditDueError('');
+  };
+
   // 期限切れ判定
   const isOverdue = !task.done && task.due && new Date(task.due) < new Date();
 
@@ -47,12 +102,19 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
     return (
       <li className="bg-blue-50 border-2 border-blue-300 p-2 rounded">
         <div className="flex flex-col space-y-2 w-full">
-          <input
-            className="nes-input"
-            value={editTitle}
-            onChange={e => setEditTitle(e.target.value)}
-            placeholder="タスク名"
-          />
+          <div>
+            <input
+              className={`nes-input w-full ${editTitleError ? 'border-red-500' : ''}`}
+              value={editTitle}
+              onChange={handleEditTitleChange}
+              placeholder="タスク名"
+            />
+            {editTitleError && (
+              <p className="text-xs text-red-500 mt-1">
+                {editTitleError}
+              </p>
+            )}
+          </div>
           <div className="flex items-center space-x-2">
             <input
               type="number"
@@ -69,25 +131,34 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
               <span className="text-sm text-gray-500">計算中...</span>
             )}
           </div>
-          <input
-            type="datetime-local"
-            className="nes-input"
-            value={editDue}
-            onChange={e => setEditDue(e.target.value)}
-          />
+          <div>
+            <input
+              type="datetime-local"
+              className={`nes-input w-full ${editDueError ? 'border-red-500' : ''}`}
+              value={editDue}
+              onChange={handleEditDueChange}
+            />
+            {editDueError && (
+              <p className="text-xs text-red-500 mt-1">
+                {editDueError}
+              </p>
+            )}
+          </div>
           <div className="flex space-x-2">
             <button
               className="nes-btn is-success"
-              onClick={() => {
-                onEdit(task.id, editTitle, editPoint, editDue);
-                setIsEditing(false);
-              }}
+              onClick={handleSaveEdit}
+              disabled={!!editTitleError || !!editDueError}
             >
               保存
             </button>
             <button
               className="nes-btn"
-              onClick={() => setIsEditing(false)}
+              onClick={() => {
+                setIsEditing(false);
+                setEditTitleError('');
+                setEditDueError('');
+              }}
             >
               キャンセル
             </button>
@@ -134,10 +205,7 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
                 <div className="flex flex-col space-y-1">
                   <button
                     className="nes-btn whitespace-nowrap text-sm"
-                    onClick={() => {
-                      setIsEditing(true);
-                      setShowMenu(false);
-                    }}
+                    onClick={handleStartEdit}
                   >
                     ✏️ 編集
                   </button>
