@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Task } from '../types';
+import woodImage from '/wood_piskel.gif';
 
 interface CompletedTasksProps {
   tasks: Task[];
@@ -40,7 +41,7 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
         className="relative"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <img src="/wood_piskel.gif" className="w-48" alt="wood" />
+        <img src={woodImage} className="w-48" alt="wood" />
         <span className="absolute inset-0 flex items-start justify-center text-white font-bold text-sm pt-12">
           完了タスク ({completedCount})
         </span>
