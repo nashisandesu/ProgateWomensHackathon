@@ -84,6 +84,7 @@ function TodoQuest() {
   const [editTitle, setEditTitle] = useState('');
   const [editPoint, setEditPoint] = useState(10);
   const [showMenu, setShowMenu] = useState<string | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const xp = tasks.filter(t => t.done).reduce((sum, t) => sum + t.point, 0);
   const level = Math.floor(xp / 100) + 1;
@@ -149,117 +150,164 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
       <div className="w-full md:w-1/3 h-1/2 md:h-full border-4 border-black p-4 flex flex-col">
         <h2 className="text-xl mb-4">今日のタスク</h2>
         <ul className="flex-1 overflow-y-auto space-y-2">
-          {tasks.map(t => (
-            <li key={t.id} className="flex justify-between items-center bg-gray-100 p-2 rounded">
-              <div className="flex items-center space-x-2">
-                {editingTask === t.id ? (
-                  <div className="flex flex-col space-y-2 w-full">
-                    <input
-                      className="nes-input"
-                      value={editTitle}
-                      onChange={e => setEditTitle(e.target.value)}
-                      placeholder="タスク名"
-                    />
-                    <input
-                      type="number"
-                      className="nes-input"
-                      min={5}
-                      max={100}
-                      step={5}
-                      value={editPoint}
-                      onChange={e => setEditPoint(Number(e.target.value))}
-                      placeholder="ポイント"
-                    />
-                    <div className="flex space-x-2">
-                      <button 
-                        className="nes-btn is-success" 
-                        onClick={() => {
-                          editTask(t.id, editTitle, editPoint);
-                          setEditingTask(null);
-                        }}
-                      >
-                        保存
-                      </button>
-                      <button 
-                        className="nes-btn" 
-                        onClick={() => setEditingTask(null)}
-                      >
-                        キャンセル
-                      </button>
-                    </div>
-                  </div>
-        ) : (
-          <>
-            <span className={t.done ? 'line-through opacity-50' : ''}>{t.title}</span>
-            {t.due && (
-              <span className="ml-2 text-xs text-gray-500">
-                期限: {new Date(t.due).toLocaleDateString()}
-              </span>
-            )}
-          </>
-        )}
-      </div>
-              <div className="flex items-center space-x-2">
-                {editingTask !== t.id && (
-                  <span className="nes-badge"><span className="is-dark">{t.point}pt</span></span>
-                )}
-                {!t.done && editingTask !== t.id && (
-                  <button 
-                    className="nes-btn is-success" 
-                    onClick={() => toggleTask(t.id)}
-                  >
-                    完了
-                  </button>
-                )}
-                {t.done && editingTask !== t.id && (
-                  <button 
-                    className="nes-btn is-warning" 
-                    onClick={() => toggleTask(t.id)}
-                  >
-                    取り消し
-                  </button>
-                )}
-                {editingTask !== t.id && (
-                  <div className="relative">
-                    <button 
-                      className="nes-btn"
-                      onClick={() => setShowMenu(showMenu === t.id ? null : t.id)}
-                    >
-                      ⋯
-                    </button>
-                    {showMenu === t.id && (
-                      <div className="absolute right-0 top-full mt-1 bg-white border-2 border-black p-2 z-10">
-                        <button 
-                          className="nes-btn block w-full mb-1"
-                          onClick={() => {
-                            setEditingTask(t.id);
-                            setEditTitle(t.title);
-                            setEditPoint(t.point);
-                            setShowMenu(null);
-                          }}
-                        >
-                          編集
-                        </button>
-                        <button 
-                          className="nes-btn is-error block w-full"
-                          onClick={() => {
-                            deleteTask(t.id);
-                            setShowMenu(null);
-                          }}
-                        >
-                          削除
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+          {(() => {
+            // タスクを期限ごとにグループ化
+            const groupedTasks = tasks.reduce((groups, task) => {
+              const dueDate = task.due ? new Date(task.due).toLocaleDateString() : '期限なし';
+              if (!groups[dueDate]) {
+                groups[dueDate] = [];
+              }
+              groups[dueDate].push(task);
+              return groups;
+            }, {} as Record<string, typeof tasks>);
+
+            // 期限順にソート（期限なしは最後）
+            const sortedDates = Object.keys(groupedTasks).sort((a, b) => {
+              if (a === '期限なし') return 1;
+              if (b === '期限なし') return -1;
+              return new Date(a).getTime() - new Date(b).getTime();
+            });
+
+            return sortedDates.map(dueDate => (
+              <div key={dueDate} className="mb-4">
+                <h3 className="text-lg font-bold mb-2 border-b-2 border-black pb-1">
+                  {dueDate}
+                </h3>
+                <div className="space-y-2">
+                  {groupedTasks[dueDate].map(t => (
+                    <li key={t.id} className="bg-gray-100 p-2 rounded">
+                      {editingTask === t.id ? (
+                        <div className="flex flex-col space-y-2 w-full">
+                          <input
+                            className="nes-input"
+                            value={editTitle}
+                            onChange={e => setEditTitle(e.target.value)}
+                            placeholder="タスク名"
+                          />
+                          <input
+                            type="number"
+                            className="nes-input"
+                            min={5}
+                            max={100}
+                            step={5}
+                            value={editPoint}
+                            onChange={e => setEditPoint(Number(e.target.value))}
+                            placeholder="ポイント"
+                          />
+                          <div className="flex space-x-2">
+                            <button
+                              className="nes-btn is-success"
+                              onClick={() => {
+                                editTask(t.id, editTitle, editPoint);
+                                setEditingTask(null);
+                              }}
+                            >
+                              保存
+                            </button>
+                            <button
+                              className="nes-btn"
+                              onClick={() => setEditingTask(null)}
+                            >
+                              キャンセル
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-full">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <span className={t.done ? 'line-through opacity-50' : ''}>{t.title}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span className="nes-badge"><span className="is-dark">{t.point}pt</span></span>
+                              {!t.done && (
+                                <button
+                                  className="nes-btn is-success"
+                                  onClick={() => toggleTask(t.id)}
+                                >
+                                  完了
+                                </button>
+                              )}
+                              {t.done && (
+                                <button
+                                  className="nes-btn is-warning"
+                                  onClick={() => toggleTask(t.id)}
+                                >
+                                  取り消し
+                                </button>
+                              )}
+                              <div className="relative">
+                                <button
+                                  className="nes-btn"
+                                  onClick={() => setShowMenu(showMenu === t.id ? null : t.id)}
+                                >
+                                  ⋯
+                                </button>
+                                {showMenu === t.id && (
+                                  <div className="absolute right-0 top-full mt-1 bg-white border-2 border-black p-2 z-10">
+                                    <button
+                                      className="nes-btn block w-full mb-1"
+                                      onClick={() => {
+                                        setEditingTask(t.id);
+                                        setEditTitle(t.title);
+                                        setEditPoint(t.point);
+                                        setShowMenu(null);
+                                      }}
+                                    >
+                                      編集
+                                    </button>
+                                    <button
+                                      className="nes-btn is-error block w-full"
+                                      onClick={() => {
+                                        deleteTask(t.id);
+                                        setShowMenu(null);
+                                      }}
+                                    >
+                                      削除
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </div>
               </div>
-            </li>
-          ))}
+            ));
+          })()}
         </ul>
-        {/* Add Task */}
-        <AddTaskForm onAdd={addTask} />
+        {/* Add Task Button */}
+        <button 
+          className="nes-btn is-primary w-full mt-4" 
+          onClick={() => setShowAddForm(true)}
+        >
+          ＋ タスクを追加
+        </button>
       </div>
+
+      {/* Add Task Popup */}
+      {showAddForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white border-4 border-black p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl mb-4">新しいタスクを追加</h3>
+            <AddTaskForm 
+              onAdd={(title, point, due) => {
+                addTask(title, point, due);
+                setShowAddForm(false);
+              }} 
+            />
+            <button 
+              className="nes-btn mt-4 w-full" 
+              onClick={() => setShowAddForm(false)}
+            >
+              キャンセル
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
