@@ -70,7 +70,7 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
             )}
           </div>
           <input
-            type="date"
+            type="datetime-local"
             className="nes-input"
             value={editDue}
             onChange={e => setEditDue(e.target.value)}
@@ -203,7 +203,12 @@ export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: Task
   
   // タスクを期限ごとにグループ化
   const groupedTasks = incompleteTasks.reduce((groups, task) => {
-    const dueDate = task.due ? new Date(task.due).toLocaleDateString() : '期限なし';
+    const dueDate = task.due ? new Date(task.due).toLocaleDateString('ja-JP', {
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }) : '期限なし';
     if (!groups[dueDate]) {
       groups[dueDate] = [];
     }

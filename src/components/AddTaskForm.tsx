@@ -77,7 +77,7 @@ export function AddTaskForm({ onAdd }: AddTaskFormProps) {
             期限
           </label>
           <input
-            type="date"
+            type="datetime-local"
             className="w-full nes-input"
             value={due}
             onChange={e => setDue(e.target.value)}

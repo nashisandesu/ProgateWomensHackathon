@@ -16,7 +16,12 @@ export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: Ta
   // 検索フィルタリング
   const filteredTasks = tasks.filter(task => 
     task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (task.due && new Date(task.due).toLocaleDateString().includes(searchQuery))
+    (task.due && new Date(task.due).toLocaleDateString('ja-JP', {
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).includes(searchQuery))
   );
 
   // 完了・未完了でグループ化
@@ -95,7 +100,12 @@ export function TaskSearch({ tasks, onToggleTask, onDeleteTask, onEditTask }: Ta
                           <div>
                             <span className="line-through opacity-50 text-lg">{task.title}</span>
                             <div className="text-sm text-gray-600">
-                              {task.due && `期限: ${new Date(task.due).toLocaleDateString()}`}
+                              {task.due && `期限: ${new Date(task.due).toLocaleDateString('ja-JP', {
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}`}
                             </div>
                           </div>
                           <div className="flex items-center space-x-3">

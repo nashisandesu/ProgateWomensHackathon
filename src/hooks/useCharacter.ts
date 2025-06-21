@@ -58,6 +58,7 @@ export function useCharacter(level: number): UseCharacterReturn {
     
     // 1. ゲーム開始時（キャラクターが未選択）の場合は抽選
     if (!hasSelectedCharacter) {
+      // TODO: 本当は動的に変化するべき
       const randomCharacter = Math.floor(Math.random() * 6) + 1; // 1-6のキャラクター
       console.log('Game start - Selecting random character:', randomCharacter);
       setSelectedCharacter(randomCharacter);

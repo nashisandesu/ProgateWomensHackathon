@@ -14,7 +14,12 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
 
   // 完了したタスクを日付ごとにグループ化
   const groupedCompletedTasks = completedTasks.reduce((groups, task) => {
-    const dueDate = task.due ? new Date(task.due).toLocaleDateString() : '期限なし';
+    const dueDate = task.due ? new Date(task.due).toLocaleDateString('ja-JP', {
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }) : '期限なし';
     if (!groups[dueDate]) {
       groups[dueDate] = [];
     }
@@ -77,7 +82,12 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
                             <div>
                               <span className="line-through opacity-50 text-lg">{task.title}</span>
                               <div className="text-sm text-gray-600">
-                                {task.due && `期限: ${new Date(task.due).toLocaleDateString()}`}
+                                {task.due && `期限: ${new Date(task.due).toLocaleDateString('ja-JP', {
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}`}
                               </div>
                             </div>
                             <div className="flex items-center space-x-3">
