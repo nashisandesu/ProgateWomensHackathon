@@ -16,7 +16,7 @@ interface CatCharacterProps {
 
 export function CatCharacter({ level, xp, hp, xpGain, levelUp, tasks, onToggleTask, onDeleteTask, onEditTask }: CatCharacterProps) {
   return (
-    <div className="w-full lg:w-1/2 flex flex-col items-center justify-center border-4 border-black relative h-auto lg:h-full p-2 lg:p-4">
+    <div className="w-full lg:w-1/2 flex flex-col items-center justify-center border-4 border-black relative h-auto lg:h-full p-2 lg:p-4 min-h-[350px] lg:min-h-0">
       <div className="absolute top-2 left-2 lg:top-4 lg:left-4 z-20 space-y-1 lg:space-y-2">
         <div className="text-base lg:text-lg font-bold">Lv.{level}</div>
         <div className="w-24 lg:w-32">
@@ -55,7 +55,7 @@ export function CatCharacter({ level, xp, hp, xpGain, levelUp, tasks, onToggleTa
         </div>
       )}
       
-      <img src="cat-animation.gif" className="w-48 h-48 lg:w-64 lg:h-64" alt="cat" />
+      <img src="cat-animation.gif" className="w-40 h-40 lg:w-64 lg:h-64" alt="cat" />
       
       {/* 完了タスクボタン - 左下に配置 */}
       <CompletedTasks tasks={tasks} onToggleTask={onToggleTask} />

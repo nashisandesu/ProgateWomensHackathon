@@ -41,7 +41,7 @@ function TodoQuest() {
   return (
     <div className="flex flex-col lg:flex-row w-full h-full p-2 lg:p-4 gap-2 lg:gap-4 relative overflow-hidden">
       {/* ─ Left Cat Panel ─ */}
-      <div className="w-full lg:w-1/2 h-auto lg:h-full min-h-[400px] lg:min-h-0">
+      <div className="w-full lg:w-1/2 h-auto lg:h-full">
         <CatCharacter
           level={level}
           xp={xp}
@@ -56,7 +56,7 @@ function TodoQuest() {
       </div>
 
       {/* ─ Right Task Panel ─ */}
-      <div className="w-full lg:w-1/2 h-auto lg:h-full border-4 border-black p-2 lg:p-4 flex flex-col flex-1 min-h-[300px] lg:min-h-0">
+      <div className="w-full lg:w-1/2 h-auto lg:h-full border-4 border-black p-2 lg:p-4 flex flex-col flex-1">
         <h2 className="text-lg lg:text-xl mb-2 lg:mb-4">今日のタスク</h2>
         <TaskList
           tasks={tasks}
@@ -64,14 +64,28 @@ function TodoQuest() {
           onDeleteTask={deleteTask}
           onEditTask={editTask}
         />
-        {/* Add Task Button */}
-        <button 
-          className="nes-btn is-primary w-full mt-2 lg:mt-4 py-3 lg:py-2" 
-          onClick={() => setShowAddForm(true)}
-        >
-          ＋ タスクを追加
-        </button>
       </div>
+
+      {/* Floating Add Task Button - 右下に配置 */}
+      <button 
+        className="
+        fixed bottom-4 right-4        /* 画面右下に固定 */
+        w-14 h-14                     /* 56 px の円 */
+        rounded-full                  /* 角丸 = 完全な円 */
+        bg-blue-600 hover:bg-blue-700 /* 色とホバー色 */
+        text-white text-2xl font-bold /* ＋マークの見た目 */
+        flex items-center justify-center
+        shadow-lg                     /* 浮かせる影 */
+        transition-transform duration-200 hover:scale-110
+        focus:outline-none focus:ring-4 focus:ring-blue-300
+        dark:focus:ring-blue-800
+        z-50
+      "
+        onClick={() => setShowAddForm(true)}
+        aria-label="タスクを追加"
+      >
+        ＋
+      </button>
 
       {/* Add Task Popup - より高いz-indexを使用 */}
       {showAddForm && (
