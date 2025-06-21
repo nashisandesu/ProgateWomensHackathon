@@ -83,10 +83,13 @@ function TodoQuest() {
   const [editingTask, setEditingTask] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editPoint, setEditPoint] = useState(10);
+  const [editDue, setEditDue] = useState('');
   const [showMenu, setShowMenu] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   // 経験値Getアニメーション用のstate
   const [xpGain, setXpGain] = useState<{ point: number; show: boolean }>({ point: 0, show: false });
+  // レベルアップアニメーション用のstate
+  const [levelUp, setLevelUp] = useState<{ show: boolean }>({ show: false });
 
   const xp = tasks.filter(t => t.done).reduce((sum, t) => sum + t.point, 0);
   const level = Math.floor(xp / 100) + 1;
@@ -102,6 +105,17 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
           
           // タスクが完了状態になった場合、経験値Getアニメーションを表示
           if (!wasDone && newDone) {
+            const currentXp = tasks.filter(task => task.done).reduce((sum, task) => sum + task.point, 0);
+            const newXp = currentXp + t.point;
+            const currentLevel = Math.floor(currentXp / 100) + 1;
+            const newLevel = Math.floor(newXp / 100) + 1;
+            
+            // レベルアップした場合
+            if (newLevel > currentLevel) {
+              setLevelUp({ show: true });
+              setTimeout(() => setLevelUp({ show: false }), 3000);
+            }
+            
             setXpGain({ point: t.point, show: true });
             // 3秒後にアニメーションを非表示
             setTimeout(() => setXpGain(prev => ({ ...prev, show: false })), 3000);
@@ -123,9 +137,9 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
     setTasks(prev => prev.filter(t => t.id !== id));
   };
 
-  const editTask = (id: string, newTitle: string, newPoint: number) => {
+  const editTask = (id: string, newTitle: string, newPoint: number, newDue?: string) => {
     setTasks(prev => prev.map(t => 
-      t.id === id ? { ...t, title: newTitle, point: newPoint } : t
+      t.id === id ? { ...t, title: newTitle, point: newPoint, due: newDue } : t
     ));
   };
 
@@ -151,23 +165,36 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
   // ログイン済みの場合は、ToDoアプリ本体を表示
   return (
     <div className="flex flex-col md:flex-row w-full h-full p-4 gap-4">
-      {/* ─ Left HUD ─ */}
-      <div className="w-full md:w-1/4 h-1/3 md:h-full border-4 border-black p-4 space-y-4">
-        <div>
-          <p>経験値: {xp} XP</p>
-          <p className="flex space-x-1 mt-2">HP: {Array.from({ length: hp }).map((_, i) => <span key={i}>{HEART}</span>)}</p>
-          <p className="mt-2">レベル: Lv.{level}</p>
-        </div>
-      </div>
-
       {/* ─ Center Cat ─ */}
-      <div className="flex-1 flex flex-col items-center justify-center border-4 border-black relative">
+      <div className="w-full md:w-1/2 flex flex-col items-center justify-center border-4 border-black relative">
         <div className="absolute -top-6 bg-white border-4 border-black px-4 py-2">Lv.{level}</div>
+        
+        {/* 経験値・HP・レベル情報を猫の下に表示 */}
+        <div className="mt-4 text-center space-y-2">
+          <div className="w-64">
+            <p className="mb-1">EXP: {xp} XP</p>
+            <div className="w-full bg-gray-300 border-2 border-black">
+              <div 
+                className="bg-blue-500 h-4 transition-all duration-300"
+                style={{ width: `${Math.min(100, ((xp % 100) / 100) * 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-sm mt-1">次のレベルまで: {100 - (xp % 100)} XP</p>
+          </div>
+          <p className="flex justify-center space-x-1">HP: {Array.from({ length: hp }).map((_, i) => <span key={i}>{HEART}</span>)}</p>
+        </div>
         
         {/* 経験値Getアニメーションを猫の上に表示 */}
         {xpGain.show && (
-          <div className="absolute left-1/2 transform -translate-x-1/2 z-10 text-2xl font-bold whitespace-nowrap text-yellow-400" style={{ top: '25%' }}>
+          <div className="absolute left-1/2 transform -translate-x-1/2 z-10 text-2xl font-bold whitespace-nowrap text-yellow-400" style={{ top: '15%' }}>
             EXP Get! +{xpGain.point} XP
+          </div>
+        )}
+        
+        {/* レベルアップアニメーションを猫の上に表示 */}
+        {levelUp.show && (
+          <div className="absolute left-1/2 transform -translate-x-1/2 z-10 text-3xl font-bold whitespace-nowrap text-green-400 animate-bounce" style={{ top: '5%' }}>
+            LEVEL UP! 🎉
           </div>
         )}
         
@@ -175,7 +202,7 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
       </div>
 
       {/* ─ Right Task Panel ─ */}
-      <div className="w-full md:w-1/3 h-1/2 md:h-full border-4 border-black p-4 flex flex-col">
+      <div className="w-full md:w-1/2 h-1/2 md:h-full border-4 border-black p-4 flex flex-col">
         <h2 className="text-xl mb-4">今日のタスク</h2>
         <ul className="flex-1 overflow-y-auto space-y-2">
           {(() => {
@@ -222,11 +249,17 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
                             onChange={e => setEditPoint(Number(e.target.value))}
                             placeholder="ポイント"
                           />
+                          <input
+                            type="date"
+                            className="nes-input"
+                            value={editDue}
+                            onChange={e => setEditDue(e.target.value)}
+                          />
                           <div className="flex space-x-2">
                             <button
                               className="nes-btn is-success"
                               onClick={() => {
-                                editTask(t.id, editTitle, editPoint);
+                                editTask(t.id, editTitle, editPoint, editDue);
                                 setEditingTask(null);
                               }}
                             >
@@ -250,7 +283,7 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
                               <span className="nes-badge"><span className="is-dark">{t.point}pt</span></span>
                               {!t.done && (
                                 <button
-                                  className="nes-btn is-success w-20 h-12"
+                                  className="nes-btn is-success w-24 h-12"
                                   onClick={() => toggleTask(t.id)}
                                 >
                                   完了
@@ -258,7 +291,7 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
                               )}
                               {t.done && (
                                 <button
-                                  className="nes-btn is-warning w-20 h-12"
+                                  className="nes-btn is-warning w-24 h-12"
                                   onClick={() => toggleTask(t.id)}
                                 >
                                   取り消し
@@ -280,6 +313,7 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
                                           setEditingTask(t.id);
                                           setEditTitle(t.title);
                                           setEditPoint(t.point);
+                                          setEditDue(t.due || '');
                                           setShowMenu(null);
                                         }}
                                       >
