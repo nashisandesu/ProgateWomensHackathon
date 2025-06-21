@@ -181,7 +181,15 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
             </div>
             <p className="text-sm mt-1">次のレベルまで: {100 - (xp % 100)} XP</p>
           </div>
-          <p className="flex justify-center space-x-1">HP: {Array.from({ length: hp }).map((_, i) => <span key={i}>{HEART}</span>)}</p>
+          <p className="flex justify-center space-x-1">HP: {Array.from({ length: hp }).map((_, i) => 
+            <img
+            key={i}
+            src="/docs/heart_Piskel.gif"
+            className="inline w-6 h-6 align-middle ml-1"
+            alt="heart"
+            />
+            )}
+          </p>
         </div>
         
         {/* 経験値Getアニメーションを猫の上に表示 */}
