@@ -85,6 +85,8 @@ function TodoQuest() {
   const [editPoint, setEditPoint] = useState(10);
   const [showMenu, setShowMenu] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  // 経験値Getアニメーション用のstate
+  const [xpGain, setXpGain] = useState<{ point: number; show: boolean }>({ point: 0, show: false });
 
   const xp = tasks.filter(t => t.done).reduce((sum, t) => sum + t.point, 0);
   const level = Math.floor(xp / 100) + 1;
@@ -92,7 +94,25 @@ function TodoQuest() {
 const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now).length;
   const hp = Math.max(0, MAX_HP - overdueCount);
   const toggleTask = (id: string) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
+    setTasks(prev => {
+      const updatedTasks = prev.map(t => {
+        if (t.id === id) {
+          const wasDone = t.done;
+          const newDone = !wasDone;
+          
+          // タスクが完了状態になった場合、経験値Getアニメーションを表示
+          if (!wasDone && newDone) {
+            setXpGain({ point: t.point, show: true });
+            // 3秒後にアニメーションを非表示
+            setTimeout(() => setXpGain(prev => ({ ...prev, show: false })), 3000);
+          }
+          
+          return { ...t, done: newDone };
+        }
+        return t;
+      });
+      return updatedTasks;
+    });
   };
 
   const addTask = (title: string, point: number,due?: string) => {
@@ -143,7 +163,15 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
       {/* ─ Center Cat ─ */}
       <div className="flex-1 flex flex-col items-center justify-center border-4 border-black relative">
         <div className="absolute -top-6 bg-white border-4 border-black px-4 py-2">Lv.{level}</div>
-        <img src="/docs/cat-animation.gif" className="w-32 h-32" alt="cat" />
+        
+        {/* 経験値Getアニメーションを猫の上に表示 */}
+        {xpGain.show && (
+          <div className="absolute left-1/2 transform -translate-x-1/2 z-10 text-2xl font-bold whitespace-nowrap text-yellow-400" style={{ top: '25%' }}>
+            EXP Get! +{xpGain.point} XP
+          </div>
+        )}
+        
+        <img src="/docs/cat-animation.gif" className="w-64 h-64" alt="cat" />
       </div>
 
       {/* ─ Right Task Panel ─ */}
@@ -222,7 +250,7 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
                               <span className="nes-badge"><span className="is-dark">{t.point}pt</span></span>
                               {!t.done && (
                                 <button
-                                  className="nes-btn is-success"
+                                  className="nes-btn is-success w-20 h-12"
                                   onClick={() => toggleTask(t.id)}
                                 >
                                   完了
@@ -230,7 +258,7 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
                               )}
                               {t.done && (
                                 <button
-                                  className="nes-btn is-warning"
+                                  className="nes-btn is-warning w-20 h-12"
                                   onClick={() => toggleTask(t.id)}
                                 >
                                   取り消し
@@ -245,26 +273,28 @@ const overdueCount = tasks.filter(t => !t.done && t.due && new Date(t.due) < now
                                 </button>
                                 {showMenu === t.id && (
                                   <div className="absolute right-0 top-full mt-1 bg-white border-2 border-black p-2 z-10">
-                                    <button
-                                      className="nes-btn block w-full mb-1"
-                                      onClick={() => {
-                                        setEditingTask(t.id);
-                                        setEditTitle(t.title);
-                                        setEditPoint(t.point);
-                                        setShowMenu(null);
-                                      }}
-                                    >
-                                      編集
-                                    </button>
-                                    <button
-                                      className="nes-btn is-error block w-full"
-                                      onClick={() => {
-                                        deleteTask(t.id);
-                                        setShowMenu(null);
-                                      }}
-                                    >
-                                      削除
-                                    </button>
+                                    <div className="flex space-x-2">
+                                      <button
+                                        className="nes-btn whitespace-nowrap"
+                                        onClick={() => {
+                                          setEditingTask(t.id);
+                                          setEditTitle(t.title);
+                                          setEditPoint(t.point);
+                                          setShowMenu(null);
+                                        }}
+                                      >
+                                        編集
+                                      </button>
+                                      <button
+                                        className="nes-btn is-error whitespace-nowrap"
+                                        onClick={() => {
+                                          deleteTask(t.id);
+                                          setShowMenu(null);
+                                        }}
+                                      >
+                                        削除
+                                      </button>
+                                    </div>
                                   </div>
                                 )}
                               </div>
