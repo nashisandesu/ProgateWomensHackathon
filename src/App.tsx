@@ -72,6 +72,10 @@ function TodoQuest() {
     point: 20,
     done: false,
   }]);
+  const [editingTask, setEditingTask] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editPoint, setEditPoint] = useState(10);
+  const [showMenu, setShowMenu] = useState<string | null>(null);
 
   const xp = tasks.filter(t => t.done).reduce((sum, t) => sum + t.point, 0);
   const level = Math.floor(xp / 100) + 1;
@@ -83,6 +87,16 @@ function TodoQuest() {
 
   const addTask = (title: string, point: number) => {
     setTasks(prev => [...prev, { id: uuid(), title, point, done: false }]);
+  };
+
+  const deleteTask = (id: string) => {
+    setTasks(prev => prev.filter(t => t.id !== id));
+  };
+
+  const editTask = (id: string, newTitle: string, newPoint: number) => {
+    setTasks(prev => prev.map(t => 
+      t.id === id ? { ...t, title: newTitle, point: newPoint } : t
+    ));
   };
 
   // ユーザー情報がない（ログインしていない）場合は、ログインページを表示
@@ -119,7 +133,7 @@ function TodoQuest() {
       {/* ─ Center Cat ─ */}
       <div className="flex-1 flex flex-col items-center justify-center border-4 border-black relative">
         <div className="absolute -top-6 bg-white border-4 border-black px-4 py-2">Lv.{level}</div>
-        <img src="https://raw.githubusercontent.com/ikatyang/emoji-cheat-sheet/master/public/graphics/emojis/cat.png" className="w-32 h-32" alt="cat" />
+        <img src="/docs/cat-animation.gif" className="w-32 h-32" alt="cat" />
       </div>
 
       {/* ─ Right Task Panel ─ */}
@@ -128,11 +142,102 @@ function TodoQuest() {
         <ul className="flex-1 overflow-y-auto space-y-2">
           {tasks.map(t => (
             <li key={t.id} className="flex justify-between items-center bg-gray-100 p-2 rounded">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="checkbox" className="nes-checkbox" checked={t.done} onChange={() => toggleTask(t.id)} />
-                <span className={t.done ? 'line-through opacity-50' : ''}>{t.title}</span>
-              </label>
-              <span className="nes-badge"><span className="is-dark">{t.point}pt</span></span>
+              <div className="flex items-center space-x-2">
+                {editingTask === t.id ? (
+                  <div className="flex flex-col space-y-2 w-full">
+                    <input
+                      className="nes-input"
+                      value={editTitle}
+                      onChange={e => setEditTitle(e.target.value)}
+                      placeholder="タスク名"
+                    />
+                    <input
+                      type="number"
+                      className="nes-input"
+                      min={5}
+                      max={100}
+                      step={5}
+                      value={editPoint}
+                      onChange={e => setEditPoint(Number(e.target.value))}
+                      placeholder="ポイント"
+                    />
+                    <div className="flex space-x-2">
+                      <button 
+                        className="nes-btn is-success" 
+                        onClick={() => {
+                          editTask(t.id, editTitle, editPoint);
+                          setEditingTask(null);
+                        }}
+                      >
+                        保存
+                      </button>
+                      <button 
+                        className="nes-btn" 
+                        onClick={() => setEditingTask(null)}
+                      >
+                        キャンセル
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <span className={t.done ? 'line-through opacity-50' : ''}>{t.title}</span>
+                )}
+              </div>
+              <div className="flex items-center space-x-2">
+                {editingTask !== t.id && (
+                  <span className="nes-badge"><span className="is-dark">{t.point}pt</span></span>
+                )}
+                {!t.done && editingTask !== t.id && (
+                  <button 
+                    className="nes-btn is-success" 
+                    onClick={() => toggleTask(t.id)}
+                  >
+                    完了
+                  </button>
+                )}
+                {t.done && editingTask !== t.id && (
+                  <button 
+                    className="nes-btn is-warning" 
+                    onClick={() => toggleTask(t.id)}
+                  >
+                    取り消し
+                  </button>
+                )}
+                {editingTask !== t.id && (
+                  <div className="relative">
+                    <button 
+                      className="nes-btn"
+                      onClick={() => setShowMenu(showMenu === t.id ? null : t.id)}
+                    >
+                      ⋯
+                    </button>
+                    {showMenu === t.id && (
+                      <div className="absolute right-0 top-full mt-1 bg-white border-2 border-black p-2 z-10">
+                        <button 
+                          className="nes-btn block w-full mb-1"
+                          onClick={() => {
+                            setEditingTask(t.id);
+                            setEditTitle(t.title);
+                            setEditPoint(t.point);
+                            setShowMenu(null);
+                          }}
+                        >
+                          編集
+                        </button>
+                        <button 
+                          className="nes-btn is-error block w-full"
+                          onClick={() => {
+                            deleteTask(t.id);
+                            setShowMenu(null);
+                          }}
+                        >
+                          削除
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </li>
           ))}
         </ul>

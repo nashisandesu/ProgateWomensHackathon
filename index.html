@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" />
-    <!-- 8‑bit系フォント -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-    <!-- Tailwind CDN (開発用。仕上げ時は PostCSS ビルド推奨) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- NES.css for pixel UI -->
     <link href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" rel="stylesheet" />
-    <title>To Do Quest</title>
+    <title>To Do Quest</title>
     <style>
-      body, #root { @apply h-screen w-screen bg-white flex items-center justify-center; }
-      .pixel-font { font-family: 'Press Start 2P', monospace; }
+      body,#root{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center}
+      .pixel-font{font-family:'Press Start 2P',monospace}
+      /* custom slow bounce */
+      @keyframes bounce-slow{0%,100%{transform:translateY(0);}50%{transform:translateY(-6%);}}
+      .animate-bounce-slow{animation:bounce-slow 2s infinite;}
     </style>
   </head>
   <body class="pixel-font">
