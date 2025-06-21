@@ -33,7 +33,6 @@ function TodoQuest() {
     selectedCharacter,
     hasSelectedCharacter,
     getCurrentGif,
-    resetCharacterSelection,
     toggleTask,
     addTask,
     deleteTask,
