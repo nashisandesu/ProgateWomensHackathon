@@ -7,9 +7,13 @@ interface CatCharacterProps {
   level: number;
   xp: number;
   hp: number;
-  xpGain: { point: number; show: boolean };
-  levelUp: { show: boolean };
-  hpLoss: { amount: number; show: boolean };
+  currentMessage: {
+    id: string;
+    type: 'xpGain' | 'levelUp' | 'hpLoss';
+    content: string;
+    point?: number;
+    amount?: number;
+  } | null;
   tasks: Task[];
   onToggleTask: (id: string) => void;
   onDeleteTask: (id: string) => void;
@@ -20,9 +24,7 @@ export function CatCharacter({
   level, 
   xp, 
   hp, 
-  xpGain, 
-  levelUp, 
-  hpLoss, 
+  currentMessage, 
   tasks, 
   onToggleTask, 
   onDeleteTask, 
@@ -30,8 +32,17 @@ export function CatCharacter({
 }: CatCharacterProps) {
   const { selectedCharacter, hasSelectedCharacter, getCurrentGif } = useCharacter(level);
   
-  // キャラクターが選択されていない場合はデフォルトの猫を表示
-  const characterGif = getCurrentGif() || "cat-animation.gif";
+  // キャラクター画像のパスを取得
+  const characterGif = getCurrentGif();
+  
+  // デバッグ用ログ
+  console.log('CatCharacter render:', {
+    level,
+    selectedCharacter,
+    hasSelectedCharacter,
+    characterGif,
+    getCurrentGif: getCurrentGif()
+  });
 
   return (
     <div
@@ -69,41 +80,20 @@ export function CatCharacter({
             />
           )}
         </div>
-        
-        {/* デバッグ情報 */}
-        {/* <div className="text-xs text-gray-500">
-          <div>選択済み: {hasSelectedCharacter ? 'Yes' : 'No'}</div>
-          <div>レベル % 5: {level % 5}</div>
-          <div>抽選条件: {level % 5 === 1 ? 'Yes' : 'No'}</div>
-        </div> */}
-        
-        {/* リセットボタン（開発用） */}
-        {/* <button 
-          onClick={resetCharacterSelection}
-          className="text-xs bg-red-500 text-white px-2 py-1 rounded"
-        >
-          リセット
-        </button> */}
       </div>
       
-      {/* 経験値Getアニメーションを猫の上に表示 */}
-      {xpGain.show && (
-        <div className="absolute left-1/2 transform -translate-x-1/2 z-10 text-lg lg:text-2xl font-bold whitespace-nowrap text-yellow-400" style={{ top: '15%' }}>
-          EXP Get! +{xpGain.point} XP
-        </div>
-      )}
-      
-      {/* レベルアップアニメーションを猫の上に表示 */}
-      {levelUp.show && (
-        <div className="absolute left-1/2 transform -translate-x-1/2 z-10 text-xl lg:text-3xl font-bold whitespace-nowrap text-green-400 animate-bounce" style={{ top: '5%' }}>
-          LEVEL UP! 🎉
-        </div>
-      )}
-      
-      {/* HP減少アニメーションを猫の上に表示 */}
-      {hpLoss.show && (
-        <div className="absolute left-1/2 transform -translate-x-1/2 z-10 text-lg lg:text-2xl font-bold whitespace-nowrap text-red-400 animate-pulse" style={{ top: '10%' }}>
-          HP -{hpLoss.amount} 💔
+      {/* メッセージ表示（右上） */}
+      {currentMessage && (
+        <div 
+          className={`absolute top-2 right-2 lg:top-4 lg:right-4 z-10 text-lg lg:text-2xl font-bold whitespace-nowrap transition-all duration-500 ease-in-out`}
+          style={{ 
+            color: currentMessage.type === 'xpGain' ? '#fbbf24' : 
+                   currentMessage.type === 'levelUp' ? '#34d399' : 
+                   currentMessage.type === 'hpLoss' ? '#f87171' : '#ffffff',
+            textShadow: '-1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white'
+          }}
+        >
+          {currentMessage.content}
         </div>
       )}
       
@@ -114,7 +104,20 @@ export function CatCharacter({
         </div>
       )}
       
-      <img src={characterGif} className="w-40 h-40 lg:w-64 lg:h-64" alt="character" />
+      <img 
+        src={characterGif} 
+        className="w-40 h-40 lg:w-64 lg:h-64" 
+        alt="character"
+        onError={(e) => {
+          console.error('Failed to load character image:', characterGif);
+          // エラー時にデフォルトの猫画像にフォールバック
+          const target = e.target as HTMLImageElement;
+          target.src = "cat-animation.gif";
+        }}
+        onLoad={() => {
+          console.log('Character image loaded successfully:', characterGif);
+        }}
+      />
       
       {/* 完了タスクボタン - 左下に配置 */}
       <CompletedTasks tasks={tasks} onToggleTask={onToggleTask} />

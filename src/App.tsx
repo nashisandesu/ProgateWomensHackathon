@@ -24,9 +24,7 @@ function TodoQuest() {
     xp,
     level,
     hp,
-    xpGain,
-    levelUp,
-    hpLoss,
+    currentMessage,
     overdueTasks,
     showOverdueNotification,
     toggleTask,
@@ -35,6 +33,16 @@ function TodoQuest() {
     editTask,
     extendDeadline,
   } = useTasks();
+
+  // デバッグ用ログ
+  console.log('TodoQuest render:', {
+    user,
+    level,
+    xp,
+    hp,
+    currentMessage,
+    tasksCount: tasks.length
+  });
 
   // ユーザー情報がない（ログインしていない）場合は、ログインページを表示
   if (!user) {
@@ -50,9 +58,7 @@ function TodoQuest() {
           level={level}
           xp={xp}
           hp={hp}
-          xpGain={xpGain}
-          levelUp={levelUp}
-          hpLoss={hpLoss}
+          currentMessage={currentMessage}
           tasks={tasks}
           onToggleTask={toggleTask}
           onDeleteTask={deleteTask}

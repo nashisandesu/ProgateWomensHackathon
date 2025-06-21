@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 interface UseCharacterReturn {
   selectedCharacter: number | null;
   hasSelectedCharacter: boolean;
-  getCurrentGif: () => string | null;
+  getCurrentGif: () => string;
   resetCharacterSelection: () => void;
 }
 
@@ -87,7 +87,10 @@ export function useCharacter(level: number): UseCharacterReturn {
 
   // 現在のレベルに応じたGIFファイル名を取得
   const getCurrentGif = () => {
-    if (!selectedCharacter) return null;
+    if (!selectedCharacter) {
+      console.log('No character selected, returning default cat');
+      return "cat-animation.gif";
+    }
     
     // レベルを1-5の範囲に正規化
     const normalizedLevel = ((level - 1) % 5) + 1;

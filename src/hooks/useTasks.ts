@@ -1,18 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Task } from '../types';
 import { v4 as uuid } from 'uuid';
 import { MAX_HP } from '../utils/constants';
 
+// メッセージの型定義
+interface Message {
+  id: string;
+  type: 'xpGain' | 'levelUp' | 'hpLoss';
+  content: string;
+  point?: number;
+  amount?: number;
+}
+
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [xpGain, setXpGain] = useState<{ point: number; show: boolean }>({ point: 0, show: false });
-  const [levelUp, setLevelUp] = useState<{ show: boolean }>({ show: false });
-  const [hpLoss, setHpLoss] = useState<{ amount: number; show: boolean }>({ amount: 0, show: false });
+  const [messageQueue, setMessageQueue] = useState<Message[]>([]);
+  const [currentMessage, setCurrentMessage] = useState<Message | null>(null);
   const [lastHpCheck, setLastHpCheck] = useState<number>(0);
   const [overdueHpLoss, setOverdueHpLoss] = useState<number>(0);
   const [overdueTasks, setOverdueTasks] = useState<Task[]>([]);
   const [showOverdueNotification, setShowOverdueNotification] = useState(false);
+  
+  // メッセージ表示の制御用
+  const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 初期ロード
   useEffect(() => {
@@ -91,8 +102,7 @@ export function useTasks() {
       // 新しい期限切れタスクがある場合、HP減少アニメーションを表示し、HP損失を記録
       if (newOverdueTasks.length > 0) {
         console.log('HP減少検出:', newOverdueTasks.length, '件');
-        setHpLoss({ amount: newOverdueTasks.length, show: true });
-        setTimeout(() => setHpLoss({ amount: 0, show: false }), 3000);
+        addMessageToQueue({ type: 'hpLoss', content: `HP -${newOverdueTasks.length} 💔`, amount: newOverdueTasks.length });
         setOverdueHpLoss(prev => {
           const newLoss = prev + newOverdueTasks.length;
           console.log('HP損失更新:', prev, '→', newLoss);
@@ -129,8 +139,7 @@ export function useTasks() {
       
       // 新しい期限切れタスクがある場合、HP減少アニメーションを表示し、HP損失を記録
       if (newOverdueTasks.length > 0) {
-        setHpLoss({ amount: newOverdueTasks.length, show: true });
-        setTimeout(() => setHpLoss({ amount: 0, show: false }), 3000);
+        addMessageToQueue({ type: 'hpLoss', content: `HP -${newOverdueTasks.length} 💔`, amount: newOverdueTasks.length });
         setOverdueHpLoss(prev => prev + newOverdueTasks.length);
         setLastHpCheck(now.getTime());
       }
@@ -171,8 +180,7 @@ export function useTasks() {
           setShowOverdueNotification(overdueTasks.length > 0);
           
           if (newOverdueTasks.length > 0) {
-            setHpLoss({ amount: newOverdueTasks.length, show: true });
-            setTimeout(() => setHpLoss({ amount: 0, show: false }), 3000);
+            addMessageToQueue({ type: 'hpLoss', content: `HP -${newOverdueTasks.length} 💔`, amount: newOverdueTasks.length });
             setOverdueHpLoss(prev => prev + newOverdueTasks.length);
             setLastHpCheck(currentTime.getTime());
           }
@@ -217,13 +225,10 @@ export function useTasks() {
             
             // レベルアップした場合
             if (newLevel > currentLevel) {
-              setLevelUp({ show: true });
-              setTimeout(() => setLevelUp({ show: false }), 3000);
+              addMessageToQueue({ type: 'levelUp', content: 'LEVEL UP! 🎉' });
             }
             
-            setXpGain({ point: t.point, show: true });
-            // 3秒後にアニメーションを非表示
-            setTimeout(() => setXpGain(prev => ({ ...prev, show: false })), 3000);
+            addMessageToQueue({ type: 'xpGain', content: `EXP Get! +${t.point} XP`, point: t.point });
           }
           
           return { ...t, done: newDone };
@@ -267,15 +272,46 @@ export function useTasks() {
     return tasks.filter(t => !t.done && (!t.due || new Date(t.due) >= now));
   };
 
+  // メッセージをキューに追加する関数
+  const addMessageToQueue = (message: Omit<Message, 'id'>) => {
+    const newMessage: Message = {
+      ...message,
+      id: uuid()
+    };
+    setMessageQueue(prev => [...prev, newMessage]);
+  };
+
+  // メッセージキューを処理する関数
+  useEffect(() => {
+    if (messageQueue.length > 0 && !currentMessage) {
+      const nextMessage = messageQueue[0];
+      setCurrentMessage(nextMessage);
+      setMessageQueue(prev => prev.slice(1));
+      
+      // 3秒後にメッセージを非表示にして次のメッセージを表示
+      messageTimeoutRef.current = setTimeout(() => {
+        setCurrentMessage(null);
+      }, 3000);
+    }
+  }, [messageQueue, currentMessage]);
+
+  // クリーンアップ
+  useEffect(() => {
+    return () => {
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return {
     tasks,
     isLoading,
     xp,
     level,
     hp,
-    xpGain,
-    levelUp,
-    hpLoss,
+    currentMessage,
+    messageQueue,
     overdueTasks,
     showOverdueNotification,
     toggleTask,
