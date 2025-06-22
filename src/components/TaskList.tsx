@@ -278,7 +278,6 @@ export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: Task
   
   // 今日の日付を取得
   const today = new Date();
-  const todayString = `${today.getMonth() + 1}/${today.getDate()} Today`;
   
   // 今日のタスクと明日以降のタスクを分離
   const todayTasks = sortedTasks.filter(task => {
@@ -292,6 +291,11 @@ export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: Task
     const taskDate = new Date(task.due);
     return taskDate.toDateString() !== today.toDateString();
   });
+  
+  // 今日のタスクセクションのタイトルを生成
+  const todayString = todayTasks.length > 0 
+    ? `${today.getMonth() + 1}/${today.getDate()} ${new Date(todayTasks[0].due!).getHours().toString().padStart(2, '0')}:${new Date(todayTasks[0].due!).getMinutes().toString().padStart(2, '0')}`
+    : `${today.getMonth() + 1}/${today.getDate()}`;
   
   // 明日以降のタスクを期限ごとにグループ化
   const groupedFutureTasks = futureTasks.reduce((groups, task) => {
@@ -319,6 +323,7 @@ export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: Task
     <ul className="flex-1 overflow-y-auto space-y-2 max-h-full">
       {/* 今日のタスクセクション */}
       <div className="mb-4">
+        <h2 className="text-lg font-bold mb-2 pb-1">Today</h2>
         <h3 className="text-lg font-bold mb-2 border-b-2 border-black pb-1">
           {todayString}
         </h3>
