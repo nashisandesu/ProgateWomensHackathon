@@ -28,7 +28,13 @@ export function LevelUpPopup({ show, levelUpData, getCurrentGif, onClose }: Leve
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[200] p-4">
       <div className="bg-white border-4 border-yellow-400 rounded-lg p-6 w-full max-w-md mx-auto text-center">
         {/* レベルアップアニメーション */}
-        <div className="text-6xl mb-4 animate-bounce">🎉</div>
+        <div className="text-6xl mb-4 animate-bounce">
+          <img 
+            src="/cong.gif" 
+            alt="お祝い" 
+            className="w-16 h-16 mx-auto"
+          />
+        </div>
         
         {/* タイトル */}
         <h2 className="text-2xl font-bold text-yellow-600 mb-4">

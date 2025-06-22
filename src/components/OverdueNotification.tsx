@@ -184,7 +184,13 @@ export function OverdueNotification({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[300] p-4">
           <div className="bg-white border-4 border-pink-300 rounded-lg p-4 lg:p-6 w-full max-w-sm mx-auto">
             <div className="text-center">
-              <div className="text-3xl lg:text-4xl mb-4">🎉</div>
+              <div className="text-3xl lg:text-4xl mb-4">
+                <img 
+                  src="/cong.gif" 
+                  alt="お祝い" 
+                  className="w-12 h-12 mx-auto"
+                />
+              </div>
               <h3 className="text-lg lg:text-xl font-bold text-pink-600 mb-4">
                 タスク完了確認
               </h3>

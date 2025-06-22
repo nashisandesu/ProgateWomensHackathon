@@ -11,7 +11,13 @@ export function CollectionPopup({ show, characterId, onClose }: CollectionPopupP
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[300] p-4">
       <div className="bg-white border-4 border-purple-400 rounded-lg p-6 w-full max-w-md mx-auto text-center">
         {/* コレクション追加アニメーション */}
-        <div className="text-6xl mb-4 animate-bounce">🎉</div>
+        <div className="text-6xl mb-4 animate-bounce">
+          <img 
+            src="/cong.gif" 
+            alt="お祝い" 
+            className="w-16 h-16 mx-auto"
+          />
+        </div>
         
         {/* タイトル */}
         <h2 className="text-2xl font-bold text-purple-600 mb-4">
