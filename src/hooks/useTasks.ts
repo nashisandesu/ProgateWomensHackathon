@@ -22,7 +22,13 @@ export function useTasks() {
   const [hp, setHp] = useState<number>(() => {
     // localStorageからHPを読み込み、なければ最大HPで初期化
     const storedHp = localStorage.getItem('todoQuestHp');
-    return storedHp ? Number(storedHp) : MAX_HP;
+    if (storedHp) {
+      return Number(storedHp);
+    } else {
+      // localStorageに値がない場合は、MAX_HPで初期化してlocalStorageにも保存
+      localStorage.setItem('todoQuestHp', MAX_HP.toString());
+      return MAX_HP;
+    }
   });
   const [overdueTasks, setOverdueTasks] = useState<Task[]>([]);
   const [showOverdueNotification, setShowOverdueNotification] = useState(false);
@@ -218,7 +224,7 @@ export function useTasks() {
     }
   }, [tasks, isLoading]);
 
-  // 統一された期限切れタスクのチェックとHP減少
+  // 期限切れタスクのチェックとHP減少（統合版）
   useEffect(() => {
     if (isLoading) return;
 
@@ -251,86 +257,6 @@ export function useTasks() {
 
     return () => clearInterval(interval);
   }, [tasks, lastHpCheck, isLoading]);
-
-  // リアルタイム期限切れチェック（より頻繁にチェック）
-  useEffect(() => {
-    const checkRealTimeOverdue = () => {
-      const now = new Date();
-      const overdueTasks = tasks.filter(t => !t.done && t.due && new Date(t.due) < now);
-      
-      // 前回のチェック以降に期限切れになったタスクを検出
-      const newOverdueTasks = overdueTasks.filter(task => 
-        new Date(task.due!).getTime() > lastHpCheck
-      );
-      
-      // 期限切れタスクの状態を更新
-      setOverdueTasks(overdueTasks);
-      setShowOverdueNotification(overdueTasks.length > 0);
-      
-      // 新しい期限切れタスクがある場合、HP減少アニメーションを表示し、HPを減少
-      if (newOverdueTasks.length > 0) {
-        addMessageToQueue({ type: 'hpLoss', content: `HP -${newOverdueTasks.length} 💔`, amount: newOverdueTasks.length });
-        decreaseHp(newOverdueTasks.length);
-        setLastHpCheck(now.getTime());
-      }
-    };
-
-    // 10秒ごとにリアルタイムチェック
-    const realTimeInterval = setInterval(checkRealTimeOverdue, 10000);
-
-    return () => clearInterval(realTimeInterval);
-  }, [tasks, lastHpCheck]);
-
-  // 期限切れ直前のタスクを監視（1秒ごとにチェック）
-  useEffect(() => {
-    const checkImminentOverdue = () => {
-      const now = new Date();
-      const oneMinuteFromNow = new Date(now.getTime() + 60000); // 1分後
-      
-      // 1分以内に期限が切れるタスクを検出
-      const imminentOverdueTasks = tasks.filter(t => 
-        !t.done && 
-        t.due && 
-        new Date(t.due) > now && 
-        new Date(t.due) <= oneMinuteFromNow
-      );
-      
-      // 期限切れ直前のタスクがある場合、より頻繁にチェック
-      if (imminentOverdueTasks.length > 0) {
-        const checkOverdue = () => {
-          const currentTime = new Date();
-          const overdueTasks = tasks.filter(t => !t.done && t.due && new Date(t.due) < currentTime);
-          
-          const newOverdueTasks = overdueTasks.filter(task => 
-            new Date(task.due!).getTime() > lastHpCheck
-          );
-          
-          // 期限切れタスクの状態を更新
-          setOverdueTasks(overdueTasks);
-          setShowOverdueNotification(overdueTasks.length > 0);
-          
-          if (newOverdueTasks.length > 0) {
-            addMessageToQueue({ type: 'hpLoss', content: `HP -${newOverdueTasks.length} 💔`, amount: newOverdueTasks.length });
-            decreaseHp(newOverdueTasks.length);
-            setLastHpCheck(currentTime.getTime());
-          }
-        };
-        
-        // 1秒ごとにチェック
-        const immediateInterval = setInterval(checkOverdue, 1000);
-        
-        // 1分後にクリーンアップ
-        setTimeout(() => clearInterval(immediateInterval), 60000);
-        
-        return () => clearInterval(immediateInterval);
-      }
-    };
-
-    // 30秒ごとに期限切れ直前のタスクをチェック
-    const imminentInterval = setInterval(checkImminentOverdue, 30000);
-
-    return () => clearInterval(imminentInterval);
-  }, [tasks, lastHpCheck]);
 
   const toggleTask = (id: string) => {
     setTasks(prev => {
