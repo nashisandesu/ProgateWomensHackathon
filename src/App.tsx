@@ -91,11 +91,15 @@ function TodoQuest() {
       {/* Floating Collection Button - 左下に配置 */}
       <button
         onClick={() => setShowCollection(true)}
-        className="fixed bottom-4 left-4 lg:bottom-8 lg:left-8 bg-purple-500 hover:bg-purple-600 text-white rounded-full w-16 h-16 lg:w-20 lg:h-20 flex items-center justify-center text-2xl lg:text-3xl shadow-lg transition-all duration-200 z-50"
+        className="fixed bottom-4 left-4 lg:bottom-8 lg:left-8 bg-yellow-200 hover:bg-yellow-300 text-white rounded-full w-16 h-16 lg:w-20 lg:h-20 flex items-center justify-center text-2xl lg:text-3xl shadow-lg transition-all duration-200 z-50"
         style={{ boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}
         title="コレクション"
       >
-        📚
+        <img 
+          src="/collection.png" 
+          alt="コレクション" 
+          className="w-8 h-8 lg:w-10 lg:h-10 object-contain"
+        />
       </button>
 
       {/* Add Task Form Modal */}
