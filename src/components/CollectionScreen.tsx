@@ -24,7 +24,6 @@ export function CollectionScreen({ collection, onClose }: CollectionScreenProps)
     
     return {
       id: characterId,
-      name: `キャラクター${characterId}`,
       isUnlocked: !!unlockedCharacter,
       character: unlockedCharacter
     };
@@ -73,7 +72,7 @@ export function CollectionScreen({ collection, onClose }: CollectionScreenProps)
 
         {/* キャラクターグリッド */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {allCharacters.map(({ id, name, isUnlocked, character }) => (
+          {allCharacters.map(({ id, isUnlocked, character }) => (
             <div 
               key={id}
               className={`border-4 border-black p-3 text-center transition-all duration-200 ${
@@ -88,7 +87,7 @@ export function CollectionScreen({ collection, onClose }: CollectionScreenProps)
                   <div className="w-full h-24 lg:h-32 mb-2 flex items-center justify-center">
                     <img 
                       src={character?.gifUrl || `/character${id}/level5.gif`}
-                      alt={name}
+                      alt={`キャラクター${id}`}
                       className="max-w-full max-h-full object-contain"
                       onError={(e) => {
                         // 画像が見つからない場合のフォールバック
@@ -101,7 +100,6 @@ export function CollectionScreen({ collection, onClose }: CollectionScreenProps)
                   </div>
                   
                   {/* キャラクター情報 */}
-                  <div className="text-sm font-bold mb-1">{name}</div>
                   <div className="text-xs text-gray-600">
                     レベル {character?.maxLevel || 5}
                   </div>
@@ -118,7 +116,6 @@ export function CollectionScreen({ collection, onClose }: CollectionScreenProps)
                   <div className="w-full h-24 lg:h-32 mb-2 flex items-center justify-center">
                     <div className="text-6xl text-gray-400">🔒</div>
                   </div>
-                  <div className="text-sm font-bold text-gray-500 mb-1">{name}</div>
                   <div className="text-xs text-gray-400">未獲得</div>
                 </>
               )}

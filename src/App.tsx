@@ -34,8 +34,6 @@ function TodoQuest() {
     selectedCharacter,
     hasSelectedCharacter,
     getCurrentGif,
-    // コレクション関連の値
-    getCollectionStats,
     toggleTask,
     addTask,
     deleteTask,

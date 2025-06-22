@@ -8,9 +8,6 @@ export interface Task {
 
 export interface CollectionCharacter {
   id: number;
-  name: string;
-  maxLevel: number;
-  unlockedAt: number; // レベル
   unlockedDate: string; // 日付
   gifUrl: string; // 最終レベルのGIF
 }

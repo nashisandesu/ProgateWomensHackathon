@@ -20,31 +20,18 @@ export function useCollection() {
   }, [collection]);
 
   // キャラクターをコレクションに追加
-  const addToCollection = (characterId: number, level: number) => {
+  const addToCollection = (characterId: number) => {
     setCollection(prev => {
       // 既にコレクションに存在するかチェック
       const existingIndex = prev.characters.findIndex(c => c.id === characterId);
       
       if (existingIndex >= 0) {
-        // 既存のキャラクターのレベルを更新
-        const updatedCharacters = [...prev.characters];
-        updatedCharacters[existingIndex] = {
-          ...updatedCharacters[existingIndex],
-          maxLevel: Math.max(updatedCharacters[existingIndex].maxLevel, level),
-          unlockedAt: Math.min(updatedCharacters[existingIndex].unlockedAt, level)
-        };
-        
-        return {
-          ...prev,
-          characters: updatedCharacters
-        };
+        // 既存のキャラクターは何もしない（重複追加を防ぐ）
+        return prev;
       } else {
         // 新しいキャラクターを追加
         const newCharacter: CollectionCharacter = {
           id: characterId,
-          name: `キャラクター${characterId}`,
-          maxLevel: level,
-          unlockedAt: level,
           unlockedDate: new Date().toISOString(),
           gifUrl: `/character${characterId}/level5.gif` // 最終レベルのGIF
         };

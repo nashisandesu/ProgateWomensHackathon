@@ -93,30 +93,35 @@ export function useTasks() {
     const isLevelUp = level > prev;
     const isPickTiming = level !== 0 && level % 5 === 1; // 1,6,11,…
 
-    console.log("Character selection check:", {
-      level,
-      prev,
-      isLevelUp,
-      isPickTiming,
-      hasSelectedCharacter,
-    });
-
     if (!hasSelectedCharacter) {
-      // 初回
+      // 初回のみ
       pickRandomCharacter();
     } else if (isLevelUp && isPickTiming) {
-      // レベル到達トリガ
+      // レベルアップした瞬間のみ抽選
       pickRandomCharacter();
     }
 
     previousLevelRef.current = level;
   }, [level, hasSelectedCharacter]);
 
-  // コレクション追加ロジック：レベル5の倍数でコレクションに追加
+  // コレクション追加ロジック：レベルアップした瞬間のみコレクションに追加
   useEffect(() => {
-    if (selectedCharacter !== null && level > 0 && level % 5 === 0) {
-      // レベル5の倍数に達した場合、コレクションに追加
-      addToCollection(selectedCharacter, level);
+    const prev = previousLevelRef.current;
+    const isLevelUp = level > prev;
+    const isCollectionLevel = level > 1 && (level - 1) % 5 === 0;
+    
+    console.log("Collection check:", {
+      selectedCharacter,
+      level,
+      prev,
+      isLevelUp,
+      isCollectionLevel,
+      condition: selectedCharacter !== null && isLevelUp && isCollectionLevel
+    });
+    
+    if (selectedCharacter !== null && isLevelUp && isCollectionLevel) {
+      // レベルアップした瞬間のみコレクションに追加
+      addToCollection(selectedCharacter);
       console.log(`Character ${selectedCharacter} added to collection at level ${level}`);
     }
   }, [level, selectedCharacter, addToCollection]);
