@@ -42,6 +42,10 @@ export function useTasks() {
 
   // コレクション機能を統合
   const { addToCollection, getCollectionStats } = useCollection();
+  
+  // addToCollectionを安定化するためのref
+  const addToCollectionRef = useRef(addToCollection);
+  addToCollectionRef.current = addToCollection;
 
   // 経験値とレベル計算（キャラクター選択ロジックより前に配置）
   const xp = tasks.filter(t => t.done).reduce((sum, t) => sum + t.point, 0);
@@ -100,8 +104,6 @@ export function useTasks() {
       // レベルアップした瞬間のみ抽選
       pickRandomCharacter();
     }
-
-    previousLevelRef.current = level;
   }, [level, hasSelectedCharacter]);
 
   // コレクション追加ロジック：レベルアップした瞬間のみコレクションに追加
@@ -121,10 +123,13 @@ export function useTasks() {
     
     if (selectedCharacter !== null && isLevelUp && isCollectionLevel) {
       // レベルアップした瞬間のみコレクションに追加
-      addToCollection(selectedCharacter);
+      addToCollectionRef.current(selectedCharacter);
       console.log(`Character ${selectedCharacter} added to collection at level ${level}`);
     }
-  }, [level, selectedCharacter, addToCollection]);
+    
+    // コレクション追加処理の後にpreviousLevelRefを更新
+    previousLevelRef.current = level;
+  }, [level, selectedCharacter]);
 
   // 初期ロード
   useEffect(() => {
