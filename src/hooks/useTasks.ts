@@ -49,7 +49,7 @@ export function useTasks() {
     return localStorage.getItem("todoQuestHasSelected") === "true";
   });
 
-  const previousLevelRef = useRef<number>(1);
+  const previousLevelRef = useRef<number>(0);
   
   // メッセージ表示の制御用
   const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -201,7 +201,9 @@ export function useTasks() {
       allConditionsMet: selectedCharacter !== null && isLevelUp && isCollectionLevel
     });
     
-    if (selectedCharacter !== null && isLevelUp && isCollectionLevel) {
+    // 実際のレベルアップ時のみコレクション追加を実行
+    // 初期化時やリロード時は除外するため、prevが0より大きいことを確認
+    if (selectedCharacter !== null && isLevelUp && isCollectionLevel && prev > 0) {
       // コレクション追加のポップアップを先に表示
       setCollectionCharacterId(selectedCharacter);
       setShowCollectionPopup(true);
@@ -217,7 +219,8 @@ export function useTasks() {
       console.log("Collection add skipped:", {
         reason: !selectedCharacter ? "no character selected" : 
                 !isLevelUp ? "not level up" : 
-                !isCollectionLevel ? "not collection level" : "unknown"
+                !isCollectionLevel ? "not collection level" : 
+                prev <= 0 ? "initialization/reload" : "unknown"
       });
     }
     
@@ -258,6 +261,15 @@ export function useTasks() {
     if (!isLoading) {
       previousLevelRef.current = level;
       console.log(`Initial previousLevelRef set to: ${level}`);
+    }
+  }, [isLoading, level]);
+
+  // 初期ロード完了後の追加初期化処理
+  useEffect(() => {
+    if (!isLoading && previousLevelRef.current === 1) {
+      // 初期化時にpreviousLevelRefが1のままの場合は、現在のレベルで更新
+      previousLevelRef.current = level;
+      console.log(`Force update previousLevelRef to current level: ${level}`);
     }
   }, [isLoading, level]);
 
