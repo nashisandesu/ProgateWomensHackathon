@@ -1,6 +1,6 @@
 
 // Gemini APIキー（実際のAPIキーに置き換えてください）
-const GEMINI_API_KEY = "あなたのAPI"; // ここに正しいキーが入っているはず
+const GEMINI_API_KEY = "あなたのAPIアドレス（https://aistudio.google.com/apikey)"; // ここに正しいキーが入っているはず
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 // Gemini APIを使って経験値を自動計算する関数

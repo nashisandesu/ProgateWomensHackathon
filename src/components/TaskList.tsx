@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Task } from '../types';
-import { calculateExperiencePoints } from '../utils/gemini';
-import { useTaskSort } from '../hooks/useTaskSort';
+import { calculateExperiencePoints } from '../utils/gemini'; // gemini.tsへの正しいパス
+import { useTaskSort } from '../hooks/useTaskSort'; // TaskListで使われるため、ここではコメントアウトしません
 
 interface TaskListProps {
   tasks: Task[];
@@ -28,35 +28,57 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
   const [editTitleError, setEditTitleError] = useState('');
   const [editDueError, setEditDueError] = useState('');
 
-  // 編集時のタスク名変更で経験値を自動計算
+  // 編集時のタスク名変更で経験値を自動計算 (デバウンス処理をここに適用)
   useEffect(() => {
+    // isEditingがtrue（編集モード）かつ、editTitleに何か入力がある場合のみ実行
     if (isEditing && editTitle.trim()) {
-      setIsEditCalculating(true);
-      calculateExperiencePoints(editTitle.trim())
-        .then(points => {
-          setEditPoint(points);
-          setIsEditCalculating(false);
-        })
-        .catch(() => {
-          setIsEditCalculating(false);
-        });
+      setIsEditCalculating(true); // 計算中表示をアクティブにする
+
+      // デバウンスタイマーを設定
+      // ユーザーの入力が止まってから1000ミリ秒（1秒）後にAPIを呼び出す
+      const handler = setTimeout(() => {
+        calculateExperiencePoints(editTitle.trim()) // Gemini API呼び出し
+          .then(points => {
+            setEditPoint(points); // 取得した経験値をセット
+          })
+          .catch(error => {
+            console.error("経験値計算中にエラーが発生しました:", error);
+            // エラー時もデフォルト値を表示するなど、ユーザーに分かりやすくする
+            setEditPoint(15); 
+          })
+          .finally(() => {
+            setIsEditCalculating(false); // 計算中表示を非アクティブにする
+          });
+      }, 1000); // ★★★ ここを 1000ミリ秒 (1秒) に設定 ★★★
+
+      // クリーンアップ関数: 新しい入力があれば、前のタイマーをクリアする
+      // これが、ユーザーが連続して入力している間にAPI呼び出しを抑制するキーポイントです
+      return () => {
+        clearTimeout(handler);
+      };
+    } else if (isEditing && !editTitle.trim()) {
+      // 編集モードでタスク名が空になった場合、経験値をデフォルト値に戻す
+      setEditPoint(15);
+      setIsEditCalculating(false); // 計算も停止
     }
-  }, [editTitle, isEditing]);
+  }, [editTitle, isEditing]); // editTitle または isEditing が変更された時にこのEffectを再実行
 
   // 編集開始時の初期化
   const handleStartEdit = () => {
     setIsEditing(true);
-    setShowMenu(false);
-    setEditTitleError('');
-    setEditDueError('');
+    setShowMenu(false); // メニューを閉じる
+    setEditTitleError(''); // エラーをクリア
+    setEditDueError(''); // エラーをクリア
+    // 編集開始時にも現在のタイトルで経験値を再計算させたい場合は
+    // setDebouncedTaskTitle(task.title) のような処理を追加することも検討
   };
 
   // 編集時のタスク名変更処理
   const handleEditTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setEditTitle(value);
+    setEditTitle(value); // editTitle をすぐに更新
     if (value.trim()) {
-      setEditTitleError('');
+      setEditTitleError(''); // エラーがある場合はクリア
     }
   };
 
@@ -73,6 +95,7 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
     const selectedDate = new Date(selectedValue);
     const now = new Date();
     
+    // 過去の日付を選択できないようにするバリデーション
     if (selectedDate < now) {
       setEditDueError('過去の日時は選択できません');
     } else {
@@ -88,17 +111,18 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
       return;
     }
     
-    if (editDueError) return;
+    if (editDueError) return; // 期限にエラーがあれば保存しない
     
-    onEdit(task.id, editTitle, editPoint, editDue);
-    setIsEditing(false);
-    setEditTitleError('');
-    setEditDueError('');
+    onEdit(task.id, editTitle, editPoint, editDue); // 親コンポーネントに保存を通知
+    setIsEditing(false); // 編集モードを終了
+    setEditTitleError(''); // エラーをクリア
+    setEditDueError(''); // エラーをクリア
   };
 
   // 期限切れ判定
   const isOverdue = !task.done && task.due && new Date(task.due) < new Date();
 
+  // 編集モード時のUI
   if (isEditing) {
     return (
       <li className="bg-blue-50 border-2 border-blue-300 p-2 rounded">
@@ -107,7 +131,7 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
             <input
               className={`nes-input w-full ${editTitleError ? 'border-red-500' : ''}`}
               value={editTitle}
-              onChange={handleEditTitleChange}
+              onChange={handleEditTitleChange} // 入力変更ハンドラー
               placeholder="タスク名"
             />
             {editTitleError && (
@@ -123,10 +147,10 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
               min={5}
               max={100}
               step={5}
-              value={editPoint}
-              onChange={e => setEditPoint(Number(e.target.value))}
+              value={editPoint} // 自動計算された経験値を表示
+              onChange={e => setEditPoint(Number(e.target.value))} // 手動変更も可能にする場合
               placeholder="ポイント"
-              disabled={isEditCalculating}
+              disabled={isEditCalculating} // 計算中は無効化
             />
             {isEditCalculating && (
               <span className="text-sm text-gray-500">計算中...</span>
@@ -149,16 +173,16 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
             <button
               className="nes-btn is-success"
               onClick={handleSaveEdit}
-              disabled={!!editTitleError || !!editDueError}
+              disabled={!!editTitleError || !!editDueError} // エラーがあれば保存ボタンを無効化
             >
               保存
             </button>
             <button
               className="nes-btn"
               onClick={() => {
-                setIsEditing(false);
-                setEditTitleError('');
-                setEditDueError('');
+                setIsEditing(false); // 編集モードを終了
+                setEditTitleError(''); // エラーをクリア
+                setEditDueError(''); // エラーをクリア
               }}
             >
               キャンセル
@@ -169,6 +193,7 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
     );
   }
 
+  // 通常表示モード時のUI
   return (
     <li
       className={`border-2 p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow ${
@@ -190,14 +215,14 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
           </span>
           <button
             className="nes-btn is-success !h-auto !py-2 !px-3 text-sm"
-            onClick={() => setShowConfirmPopup(true)}
+            onClick={() => setShowConfirmPopup(true)} // 完了確認ポップアップを表示
           >
             完了
           </button>
           <div className="relative">
             <button
               className="nes-btn !h-auto !py-2 !px-2"
-              onClick={() => setShowMenu(!showMenu)}
+              onClick={() => setShowMenu(!showMenu)} // メニューの表示/非表示を切り替え
             >
               <span className="text-sm">︙</span>
             </button>
@@ -206,14 +231,14 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
                 <div className="flex flex-col space-y-1">
                   <button
                     className="nes-btn whitespace-nowrap text-sm"
-                    onClick={handleStartEdit}
+                    onClick={handleStartEdit} // 編集開始
                   >
                     ✏️ 編集
                   </button>
                   <button
                     className="nes-btn is-error whitespace-nowrap text-sm"
                     onClick={() => {
-                      onDelete(task.id);
+                      onDelete(task.id); // タスク削除
                       setShowMenu(false);
                     }}
                   >
@@ -243,15 +268,15 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
                 <button
                   className="nes-btn is-success px-4 lg:px-6 py-2 text-sm lg:text-base"
                   onClick={() => {
-                    onToggle(task.id);
-                    setShowConfirmPopup(false);
+                    onToggle(task.id); // タスク完了/未完了を切り替え
+                    setShowConfirmPopup(false); // ポップアップを閉じる
                   }}
                 >
                   ✨ 完了！
                 </button>
                 <button
                   className="nes-btn px-4 lg:px-6 py-2 text-sm lg:text-base"
-                  onClick={() => setShowConfirmPopup(false)}
+                  onClick={() => setShowConfirmPopup(false)} // ポップアップを閉じる
                 >
                   キャンセル
                 </button>
@@ -264,35 +289,35 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
   );
 }
 
-export { TaskItem };
-
+// TaskList コンポーネント (変更なし)
 export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: TaskListProps) {
+  // useTaskSort フックをここで使用
+  const { sortedTasks } = useTaskSort(tasks); // 恐らくtask.doneに関わらずソートしたいため、引数はtasks全体に修正
+
   // 未完了のタスクのみをフィルタリング（期限切れは除外）
   const now = new Date();
-  const incompleteTasks = tasks.filter(task => 
+  const incompleteTasks = sortedTasks.filter(task => // sortedTasksからフィルタリング
     !task.done && (!task.due || new Date(task.due) >= now)
   );
-  
-  // 期限順ソート機能を使用
-  const { sortedTasks } = useTaskSort(incompleteTasks);
   
   // 今日の日付を取得
   const today = new Date();
   
   // 今日のタスクと明日以降のタスクを分離
-  const todayTasks = sortedTasks.filter(task => {
+  const todayTasks = incompleteTasks.filter(task => { // incompleteTasksからフィルタリング
     if (!task.due) return false;
     const taskDate = new Date(task.due);
     return taskDate.toDateString() === today.toDateString();
   });
   
-  const futureTasks = sortedTasks.filter(task => {
+  const futureTasks = incompleteTasks.filter(task => { // incompleteTasksからフィルタリング
     if (!task.due) return true; // 期限なしは未来のタスクとして扱う
     const taskDate = new Date(task.due);
     return taskDate.toDateString() !== today.toDateString();
   });
   
   // 今日のタスクセクションのタイトルを生成
+  // 期限が複数ある場合は最初のタスクの期限を表示するように修正
   const todayString = todayTasks.length > 0 
     ? `${today.getMonth() + 1}/${today.getDate()} ${new Date(todayTasks[0].due!).getHours().toString().padStart(2, '0')}:${new Date(todayTasks[0].due!).getMinutes().toString().padStart(2, '0')}`
     : `${today.getMonth() + 1}/${today.getDate()}`;
@@ -372,3 +397,5 @@ export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: Task
     </ul>
   );
 }
+
+export { TaskItem };
