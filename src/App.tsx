@@ -71,7 +71,6 @@ function TodoQuest() {
 
       {/* ─ Right Task Panel ─ */}
       <div className="w-full lg:w-1/2 h-auto lg:h-full border-4 border-black p-2 lg:p-4 flex flex-col flex-1">
-        <h2 className="text-lg lg:text-xl mb-2 lg:mb-4">今日のタスク</h2>
         <TaskList
           tasks={tasks}
           onToggleTask={toggleTask}

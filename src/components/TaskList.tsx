@@ -276,8 +276,25 @@ export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: Task
   // 期限順ソート機能を使用
   const { sortedTasks } = useTaskSort(incompleteTasks);
   
-  // タスクを期限ごとにグループ化（ソート済みタスクを使用）
-  const groupedTasks = sortedTasks.reduce((groups, task) => {
+  // 今日の日付を取得
+  const today = new Date();
+  const todayString = `${today.getMonth() + 1}/${today.getDate()} Today`;
+  
+  // 今日のタスクと明日以降のタスクを分離
+  const todayTasks = sortedTasks.filter(task => {
+    if (!task.due) return false;
+    const taskDate = new Date(task.due);
+    return taskDate.toDateString() === today.toDateString();
+  });
+  
+  const futureTasks = sortedTasks.filter(task => {
+    if (!task.due) return true; // 期限なしは未来のタスクとして扱う
+    const taskDate = new Date(task.due);
+    return taskDate.toDateString() !== today.toDateString();
+  });
+  
+  // 明日以降のタスクを期限ごとにグループ化
+  const groupedFutureTasks = futureTasks.reduce((groups, task) => {
     const dueDate = task.due ? new Date(task.due).toLocaleDateString('ja-JP', {
       month: 'long',
       day: 'numeric',
@@ -289,10 +306,10 @@ export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: Task
     }
     groups[dueDate].push(task);
     return groups;
-  }, {} as Record<string, typeof sortedTasks>);
+  }, {} as Record<string, typeof futureTasks>);
 
   // 期限順にソート（期限なしは最後）
-  const sortedDates = Object.keys(groupedTasks).sort((a, b) => {
+  const sortedDates = Object.keys(groupedFutureTasks).sort((a, b) => {
     if (a === '期限なし') return 1;
     if (b === '期限なし') return -1;
     return new Date(a).getTime() - new Date(b).getTime();
@@ -300,13 +317,14 @@ export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: Task
 
   return (
     <ul className="flex-1 overflow-y-auto space-y-2">
-      {sortedDates.map(dueDate => (
-        <div key={dueDate} className="mb-4">
-          <h3 className="text-lg font-bold mb-2 border-b-2 border-black pb-1">
-            {dueDate}
-          </h3>
+      {/* 今日のタスクセクション */}
+      <div className="mb-4">
+        <h3 className="text-lg font-bold mb-2 border-b-2 border-black pb-1">
+          {todayString}
+        </h3>
+        {todayTasks.length > 0 ? (
           <div className="space-y-2">
-            {groupedTasks[dueDate].map(task => (
+            {todayTasks.map(task => (
               <TaskItem
                 key={task.id}
                 task={task}
@@ -316,8 +334,36 @@ export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: Task
               />
             ))}
           </div>
-        </div>
-      ))}
+        ) : (
+          <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-lg border-2 border-gray-200">
+            <p className="text-sm">今日のタスクはありません</p>
+          </div>
+        )}
+      </div>
+
+      {/* 明日以降のタスクセクション */}
+      {sortedDates.length > 0 && (
+        <>
+          {sortedDates.map(dueDate => (
+            <div key={dueDate} className="mb-4">
+              <h3 className="text-lg font-bold mb-2 border-b-2 border-black pb-1">
+                {dueDate}
+              </h3>
+              <div className="space-y-2">
+                {groupedFutureTasks[dueDate].map(task => (
+                  <TaskItem
+                    key={task.id}
+                    task={task}
+                    onToggle={onToggleTask}
+                    onDelete={onDeleteTask}
+                    onEdit={onEditTask}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
     </ul>
   );
 }
