@@ -316,7 +316,7 @@ export function TaskList({ tasks, onToggleTask, onDeleteTask, onEditTask }: Task
   });
 
   return (
-    <ul className="flex-1 overflow-y-auto space-y-2">
+    <ul className="flex-1 overflow-y-auto space-y-2 max-h-full">
       {/* 今日のタスクセクション */}
       <div className="mb-4">
         <h3 className="text-lg font-bold mb-2 border-b-2 border-black pb-1">
