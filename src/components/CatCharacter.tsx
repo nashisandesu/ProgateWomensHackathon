@@ -28,7 +28,6 @@ export function CatCharacter({
   hp, 
   currentMessage, 
   tasks, 
-  selectedCharacter,
   hasSelectedCharacter,
   getCurrentGif,
   onToggleTask, 
@@ -49,11 +48,11 @@ export function CatCharacter({
     >
       <div className="absolute top-2 left-2 lg:top-4 lg:left-4 z-20 space-y-1 lg:space-y-2">
         <div className="text-base lg:text-lg font-bold">Lv.{level}</div>
-        {selectedCharacter && (
+        {/* {selectedCharacter && (
           <div className="text-xs lg:text-sm text-blue-600 font-bold">
             キャラクター {selectedCharacter}
           </div>
-        )}
+        )} */}
         <div className="w-24 lg:w-32">
           <div className="w-full bg-gray-300 border-2 border-black">
             <div 
