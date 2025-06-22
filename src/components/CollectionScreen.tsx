@@ -33,7 +33,7 @@ export function CollectionScreen({ collection, onClose }: CollectionScreenProps)
       <div className="bg-white border-4 border-black p-4 lg:p-6 w-full max-w-4xl mx-auto max-h-[90vh] overflow-y-auto">
         {/* ヘッダー */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl lg:text-3xl font-bold">キャラクターコレクション</h2>
+          <h2 className="text-2xl lg:text-3xl font-bold">コレクション</h2>
           <button 
             onClick={onClose}
             className="nes-btn is-error text-sm lg:text-base"
