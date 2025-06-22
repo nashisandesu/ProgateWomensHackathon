@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { TokenResponse } from '@react-oauth/google';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { LoginPage, CatCharacter, TaskList, AddTaskForm, OverdueNotification, LevelUpPopup } from './components';
-import { useTasks } from './hooks';
+import { LoginPage, CatCharacter, TaskList, AddTaskForm, OverdueNotification, LevelUpPopup, CollectionScreen } from './components';
+import { useTasks, useCollection } from './hooks';
 import { GOOGLE_CLIENT_ID } from './utils';
 
 // --- メインのAppコンポーネント ---
@@ -18,6 +18,7 @@ export default function App() {
 function TodoQuest() {
   const [user, setUser] = useState<TokenResponse | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showCollection, setShowCollection] = useState(false);
   
   const {
     tasks,
@@ -33,6 +34,8 @@ function TodoQuest() {
     selectedCharacter,
     hasSelectedCharacter,
     getCurrentGif,
+    // コレクション関連の値
+    getCollectionStats,
     toggleTask,
     addTask,
     deleteTask,
@@ -40,6 +43,8 @@ function TodoQuest() {
     extendDeadline,
     closeLevelUpPopup,
   } = useTasks();
+
+  const { collection } = useCollection();
 
   // ユーザー情報がない（ログインしていない）場合は、ログインページを表示
   if (!user) {
@@ -86,6 +91,16 @@ function TodoQuest() {
         +
       </button>
 
+      {/* Floating Collection Button - 左下に配置 */}
+      <button
+        onClick={() => setShowCollection(true)}
+        className="fixed bottom-4 left-4 lg:bottom-8 lg:left-8 bg-purple-500 hover:bg-purple-600 text-white rounded-full w-16 h-16 lg:w-20 lg:h-20 flex items-center justify-center text-2xl lg:text-3xl shadow-lg transition-all duration-200 z-50"
+        style={{ boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}
+        title="コレクション"
+      >
+        📚
+      </button>
+
       {/* Add Task Form Modal */}
       {showAddForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
@@ -105,6 +120,14 @@ function TodoQuest() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Collection Screen Modal */}
+      {showCollection && (
+        <CollectionScreen
+          collection={collection}
+          onClose={() => setShowCollection(false)}
+        />
       )}
 
       {/* Overdue Notification */}

@@ -5,4 +5,6 @@ export { AddTaskForm } from './AddTaskForm';
 export { CompletedTasks } from './CompletedTasks';
 export { TaskSearch } from './TaskSearch';
 export { OverdueNotification } from './OverdueNotification';
-export { LevelUpPopup } from './LevelUpPopup'; 
+export { OverdueTaskManager } from './OverdueTaskManager';
+export { LevelUpPopup } from './LevelUpPopup';
+export { CollectionScreen } from './CollectionScreen'; 

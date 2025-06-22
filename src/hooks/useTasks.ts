@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import type { Task } from '../types';
 import { v4 as uuid } from 'uuid';
 import { MAX_HP } from '../utils/constants';
+import { useCollection } from './useCollection';
 
 // メッセージの型定義
 interface Message {
@@ -38,6 +39,9 @@ export function useTasks() {
   
   // メッセージ表示の制御用
   const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // コレクション機能を統合
+  const { addToCollection, getCollectionStats } = useCollection();
 
   // 経験値とレベル計算（キャラクター選択ロジックより前に配置）
   const xp = tasks.filter(t => t.done).reduce((sum, t) => sum + t.point, 0);
@@ -107,6 +111,15 @@ export function useTasks() {
 
     previousLevelRef.current = level;
   }, [level, hasSelectedCharacter]);
+
+  // コレクション追加ロジック：レベル5の倍数でコレクションに追加
+  useEffect(() => {
+    if (selectedCharacter !== null && level > 0 && level % 5 === 0) {
+      // レベル5の倍数に達した場合、コレクションに追加
+      addToCollection(selectedCharacter, level);
+      console.log(`Character ${selectedCharacter} added to collection at level ${level}`);
+    }
+  }, [level, selectedCharacter, addToCollection]);
 
   // 初期ロード
   useEffect(() => {
@@ -414,6 +427,8 @@ export function useTasks() {
     hasSelectedCharacter,
     getCurrentGif,
     resetCharacterSelection,
+    // コレクション関連の値
+    getCollectionStats,
     toggleTask,
     addTask,
     deleteTask,
