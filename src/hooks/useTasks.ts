@@ -121,15 +121,29 @@ export function useTasks() {
       condition: selectedCharacter !== null && isLevelUp && isCollectionLevel
     });
     
+    // 各条件を個別にチェック
+    console.log("Individual conditions:", {
+      hasSelectedCharacter: selectedCharacter !== null,
+      isLevelUp,
+      isCollectionLevel,
+      allConditionsMet: selectedCharacter !== null && isLevelUp && isCollectionLevel
+    });
+    
     if (selectedCharacter !== null && isLevelUp && isCollectionLevel) {
       // レベルアップした瞬間のみコレクションに追加
       addToCollectionRef.current(selectedCharacter);
       console.log(`Character ${selectedCharacter} added to collection at level ${level}`);
+    } else {
+      console.log("Collection add skipped:", {
+        reason: !selectedCharacter ? "no character selected" : 
+                !isLevelUp ? "not level up" : 
+                !isCollectionLevel ? "not collection level" : "unknown"
+      });
     }
     
     // コレクション追加処理の後にpreviousLevelRefを更新
     previousLevelRef.current = level;
-  }, [level, selectedCharacter]);
+  }, [level]);
 
   // 初期ロード
   useEffect(() => {
