@@ -102,7 +102,15 @@ export function OverdueNotification({
                     >
                       <div className="w-full flex justify-between items-center gap-x-3 mb-3">
                         {/* Task Title */}
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 flex items-center gap-x-2">
+                          {/* 完了タスク用アイコン表示 */}
+                          {task.done && (
+                            <img
+                              src="wood_piskel-2.png"
+                              alt="完了"
+                              className="w-6 h-6 inline-block"
+                            />
+                          )}
                           <p className="text-gray-800 break-words font-medium">
                             {task.title}
                           </p>
@@ -209,4 +217,4 @@ export function OverdueNotification({
       )}
     </>
   );
-} 
+}

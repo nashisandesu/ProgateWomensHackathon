@@ -42,13 +42,10 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
     <div className="absolute bottom-0 left-0">
       {/* 完了タスクボタン */}
       <button
-        className="relative focus:outline-none"
+        className="relative focus:outline-none ml-4" // ← -ml-4 を ml-4 に変更
         onClick={() => setIsOpen(!isOpen)}
       >
-        <img src="wood_piskel.gif" className="w-16 lg:w-20 xl:w-24" alt="wood" />
-        <span className="absolute inset-0 flex items-start justify-center text-white font-bold text-xs lg:text-sm pt-4 lg:pt-5 xl:pt-6">
-          完了タスク ({completedCount})
-        </span>
+        <img src="wood_piskel-2.png" className="w-16 lg:w-20 xl:w-24" alt="wood" />
       </button>
 
       {/* 完了タスク一覧 */}
@@ -56,9 +53,7 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[90] p-2 lg:p-4">
           <div className="bg-white border-4 border-black p-4 lg:p-6 w-full h-full lg:w-11/12 lg:h-5/6 max-w-4xl max-h-[90vh] lg:max-h-[80vh] flex flex-col">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl lg:text-2xl font-bold">
-                完了したタスク
-              </h3>
+              {/* 完了したタスクのタイトルは削除 */}
               <button
                 className="nes-btn py-2 lg:py-1"
                 onClick={() => setIsOpen(false)}
@@ -110,4 +105,4 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
       )}
     </div>
   );
-} 
+}
