@@ -1,4 +1,3 @@
-import React from 'react';
 import type { CollectionCharacter } from '../types';
 
 interface CollectionScreenProps {
@@ -101,7 +100,7 @@ export function CollectionScreen({ collection, onClose }: CollectionScreenProps)
                   
                   {/* キャラクター情報 */}
                   <div className="text-xs text-gray-600">
-                    レベル {character?.maxLevel || 5}
+                    レベル 5
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
                     {character?.unlockedDate ? 
