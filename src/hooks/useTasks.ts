@@ -35,6 +35,10 @@ export function useTasks() {
   const [showLevelUpPopup, setShowLevelUpPopup] = useState(false);
   const [levelUpData, setLevelUpData] = useState<{ newLevel: number; newXp: number } | null>(null);
   
+  // コレクション追加のポップアップ制御用の状態
+  const [showCollectionPopup, setShowCollectionPopup] = useState(false);
+  const [collectionCharacterId, setCollectionCharacterId] = useState<number | null>(null);
+  
   // キャラクター関連の状態
   const [selectedCharacter, setSelectedCharacter] = useState<number | null>(() => {
     const stored = localStorage.getItem("todoQuestCharacter");
@@ -140,11 +144,11 @@ export function useTasks() {
     if (!hasSelectedCharacter) {
       // 初回のみ
       pickRandomCharacter();
-    } else if (isLevelUp && isPickTiming) {
-      // レベルアップした瞬間のみ抽選
+    } else if (isLevelUp && isPickTiming && !showCollectionPopup) {
+      // レベルアップした瞬間のみ抽選（コレクションポップアップが表示されていない時のみ）
       pickRandomCharacter();
     }
-  }, [level, hasSelectedCharacter]);
+  }, [level, hasSelectedCharacter, showCollectionPopup]);
 
   // コレクション追加ロジック：レベルアップした瞬間のみコレクションに追加
   useEffect(() => {
@@ -170,9 +174,17 @@ export function useTasks() {
     });
     
     if (selectedCharacter !== null && isLevelUp && isCollectionLevel) {
-      // レベルアップした瞬間のみコレクションに追加
-      addToCollectionRef.current(selectedCharacter);
-      console.log(`Character ${selectedCharacter} added to collection at level ${level}`);
+      // コレクション追加のポップアップを先に表示
+      setCollectionCharacterId(selectedCharacter);
+      setShowCollectionPopup(true);
+      
+      // レベルアップポップアップが表示されている場合は閉じる
+      if (showLevelUpPopup) {
+        setShowLevelUpPopup(false);
+        setLevelUpData(null);
+      }
+      
+      console.log(`Collection popup shown for character ${selectedCharacter} at level ${level}`);
     } else {
       console.log("Collection add skipped:", {
         reason: !selectedCharacter ? "no character selected" : 
@@ -278,8 +290,8 @@ export function useTasks() {
             // 経験値ゲットを先に表示
             addMessageToQueue({ type: 'xpGain', content: `EXP Get! +${t.point} XP`, point: t.point });
             
-            // レベルアップした場合はポップアップを表示
-            if (currentLevel > previousLevel) {
+            // レベルアップした場合はポップアップを表示（コレクション追加ポップアップが表示されていない時のみ）
+            if (currentLevel > previousLevel && !showCollectionPopup) {
               setLevelUpData({ newLevel: currentLevel, newXp: currentXp });
               setShowLevelUpPopup(true);
             }
@@ -330,6 +342,21 @@ export function useTasks() {
   const closeLevelUpPopup = () => {
     setShowLevelUpPopup(false);
     setLevelUpData(null);
+  };
+
+  // コレクション追加ポップアップを閉じる
+  const closeCollectionPopup = () => {
+    if (collectionCharacterId !== null) {
+      // コレクションに実際に追加
+      addToCollectionRef.current(collectionCharacterId);
+      console.log(`Character ${collectionCharacterId} added to collection`);
+      
+      // 新しいキャラクターを抽選
+      pickRandomCharacter();
+    }
+    
+    setShowCollectionPopup(false);
+    setCollectionCharacterId(null);
   };
 
   // メッセージをキューに追加する関数
@@ -383,6 +410,9 @@ export function useTasks() {
     showOverdueNotification,
     showLevelUpPopup,
     levelUpData,
+    // コレクション追加ポップアップ関連
+    showCollectionPopup,
+    collectionCharacterId,
     // キャラクター関連の値
     selectedCharacter,
     hasSelectedCharacter,
@@ -399,6 +429,7 @@ export function useTasks() {
     getOverdueTasks,
     getActiveTasks,
     closeLevelUpPopup,
+    closeCollectionPopup,
     // HP操作関数もエクスポート
     decreaseHp,
     healHp,

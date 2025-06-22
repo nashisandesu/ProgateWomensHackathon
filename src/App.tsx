@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { TokenResponse } from '@react-oauth/google';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { LoginPage, CatCharacter, TaskList, AddTaskForm, OverdueNotification, LevelUpPopup, CollectionScreen } from './components';
+import { LoginPage, CatCharacter, TaskList, AddTaskForm, OverdueNotification, LevelUpPopup, CollectionScreen, CollectionPopup } from './components';
 import { useTasks } from './hooks';
 import { GOOGLE_CLIENT_ID } from './utils';
 
@@ -30,6 +30,9 @@ function TodoQuest() {
     showOverdueNotification,
     showLevelUpPopup,
     levelUpData,
+    // コレクション追加ポップアップ関連
+    showCollectionPopup,
+    collectionCharacterId,
     // キャラクター関連の値
     selectedCharacter,
     hasSelectedCharacter,
@@ -42,6 +45,7 @@ function TodoQuest() {
     editTask,
     extendDeadline,
     closeLevelUpPopup,
+    closeCollectionPopup,
   } = useTasks();
 
   // ユーザー情報がない（ログインしていない）場合は、ログインページを表示
@@ -146,6 +150,13 @@ function TodoQuest() {
         levelUpData={levelUpData}
         getCurrentGif={getCurrentGif}
         onClose={closeLevelUpPopup}
+      />
+
+      {/* Collection Popup */}
+      <CollectionPopup
+        show={showCollectionPopup}
+        characterId={collectionCharacterId}
+        onClose={closeCollectionPopup}
       />
     </div>
   );

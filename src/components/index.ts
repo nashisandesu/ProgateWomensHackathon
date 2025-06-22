@@ -7,4 +7,5 @@ export { TaskSearch } from './TaskSearch';
 export { OverdueNotification } from './OverdueNotification';
 export { OverdueTaskManager } from './OverdueTaskManager';
 export { LevelUpPopup } from './LevelUpPopup';
-export { CollectionScreen } from './CollectionScreen'; 
+export { CollectionScreen } from './CollectionScreen';
+export { CollectionPopup } from './CollectionPopup'; 
