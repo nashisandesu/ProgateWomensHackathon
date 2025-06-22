@@ -28,14 +28,16 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         height: '100vh',
       }}
     >
-      <div className="relative mb-16 mt-12">
+      <div className="relative mb-8 mt-12 flex flex-col items-center">
         <h1
-          className="text-8xl font-extrabold text-white text-center select-none"
-          style={{ textShadow: '8px 8px 0 #000, 4px 4px 0 #000' }}
+          className="text-5xl font-extrabold text-white text-center select-none"
+          style={{ textShadow: '3px 3px 0 #000, 1.5px 1.5px 0 #000' }}
         >
           To Do クエスト
         </h1>
       </div>
+
+      <img src="/egg.png" alt="egg" style={{ width: "120px", marginBottom: "32px" }} />
 
       <button
         onClick={() => login()}
