@@ -113,7 +113,11 @@ export function CollectionScreen({ collection, onClose }: CollectionScreenProps)
                 <>
                   {/* ロックされたキャラクター */}
                   <div className="w-full h-24 lg:h-32 mb-2 flex items-center justify-center">
-                    <div className="text-6xl text-gray-400">🔒</div>
+                    <img 
+                      src="lock.png"
+                      alt="ロック"
+                      className="w-16 h-16 lg:w-20 lg:h-20 object-contain"
+                    />
                   </div>
                   <div className="text-xs text-gray-400">未獲得</div>
                 </>
