@@ -36,11 +36,8 @@ export function CollectionPopup({ show, characterId, onClose }: CollectionPopupP
         
         {/* メッセージ */}
         <div className="text-gray-700 mb-6">
-          <p className="text-lg font-bold mb-2">
-            キャラクター {characterId} がコレクションに追加されました！
-          </p>
           <p className="text-sm text-gray-600">
-            レベル5まで育て上げたキャラクターが記録されました。
+            育て上げたキャラクターが記録されました。<br />
             次は新しいキャラクターで冒険を続けましょう！
           </p>
         </div>

@@ -99,10 +99,8 @@ export function CollectionScreen({ collection, onClose }: CollectionScreenProps)
                   </div>
                   
                   {/* キャラクター情報 */}
-                  <div className="text-xs text-gray-600">
-                    レベル 5
-                  </div>
                   <div className="text-xs text-gray-500 mt-1">
+                    追加日：
                     {character?.unlockedDate ? 
                       new Date(character.unlockedDate).toLocaleDateString('ja-JP') : 
                       '獲得済み'
@@ -130,8 +128,8 @@ export function CollectionScreen({ collection, onClose }: CollectionScreenProps)
         <div className="mt-6 p-4 bg-yellow-100 border-2 border-yellow-400">
           <h3 className="font-bold text-yellow-800 mb-2">💡 ヒント</h3>
           <p className="text-sm text-yellow-700">
-            タスクを完了してレベルアップすると、新しいキャラクターがランダムで選択されます。
-            レベル5まで育てると、そのキャラクターがコレクションに追加されます！
+            タスクを完了してレベルアップすると、キャラクターがどんどん育ちます。<br />
+            自分のキャラクターを育て上げてコレクションに追加しよう！
           </p>
         </div>
       </div>
