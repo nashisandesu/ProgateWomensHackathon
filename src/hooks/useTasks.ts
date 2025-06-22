@@ -137,6 +137,8 @@ export function useTasks() {
 
   // キャラクター選択ロジック
   useEffect(() => {
+    if (isLoading) return; // 初期ロード中は処理しない
+    
     const prev = previousLevelRef.current;
     const isLevelUp = level > prev;
     const isPickTiming = level !== 0 && level % 5 === 1; // 1,6,11,…
@@ -146,12 +148,38 @@ export function useTasks() {
       pickRandomCharacter();
     } else if (isLevelUp && isPickTiming && !showCollectionPopup) {
       // レベルアップした瞬間のみ抽選（コレクションポップアップが表示されていない時のみ）
-      pickRandomCharacter();
+      // ただし、コレクション追加レベル（5→6、10→11など）の場合は抽選しない
+      const isCollectionLevel = level > 1 && (level - 1) % 5 === 0;
+      if (!isCollectionLevel) {
+        pickRandomCharacter();
+      }
     }
-  }, [level, hasSelectedCharacter, showCollectionPopup]);
+  }, [level, hasSelectedCharacter, showCollectionPopup, isLoading]);
+
+  // コレクション追加ポップアップが閉じられた直後のキャラクター抽選
+  useEffect(() => {
+    if (!isLoading && !showCollectionPopup && collectionCharacterId === null && hasSelectedCharacter) {
+      // コレクション追加ポップアップが閉じられた直後（showCollectionPopupがfalseになった時）
+      // かつ、レベルが抽選タイミングの場合のみ新しいキャラクターを抽選
+      const isPickTiming = level !== 0 && level % 5 === 1; // 1,6,11,…
+      const isCollectionLevel = level > 1 && (level - 1) % 5 === 0; // コレクション追加レベル
+      
+      if (isPickTiming && isCollectionLevel) {
+        // 少し遅延を入れてから抽選（状態更新の完了を待つ）
+        const timer = setTimeout(() => {
+          console.log(`Picking new character after collection popup closed at level ${level}`);
+          pickRandomCharacter();
+        }, 100);
+        
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [showCollectionPopup, isLoading, hasSelectedCharacter, level]);
 
   // コレクション追加ロジック：レベルアップした瞬間のみコレクションに追加
   useEffect(() => {
+    if (isLoading) return; // 初期ロード中は処理しない
+    
     const prev = previousLevelRef.current;
     const isLevelUp = level > prev;
     const isCollectionLevel = level > 1 && (level - 1) % 5 === 0;
@@ -195,7 +223,7 @@ export function useTasks() {
     
     // コレクション追加処理の後にpreviousLevelRefを更新
     previousLevelRef.current = level;
-  }, [level]);
+  }, [level, isLoading]);
 
   // 初期ロード
   useEffect(() => {
@@ -224,6 +252,14 @@ export function useTasks() {
       setIsLoading(false);
     }
   }, []);
+
+  // 初期ロード後にpreviousLevelRefを現在のレベルに設定
+  useEffect(() => {
+    if (!isLoading) {
+      previousLevelRef.current = level;
+      console.log(`Initial previousLevelRef set to: ${level}`);
+    }
+  }, [isLoading, level]);
 
   // タスクの保存
   useEffect(() => {
@@ -350,9 +386,6 @@ export function useTasks() {
       // コレクションに実際に追加
       addToCollectionRef.current(collectionCharacterId);
       console.log(`Character ${collectionCharacterId} added to collection`);
-      
-      // 新しいキャラクターを抽選
-      pickRandomCharacter();
     }
     
     setShowCollectionPopup(false);
