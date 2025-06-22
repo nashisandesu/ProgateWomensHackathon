@@ -41,7 +41,7 @@ export function useTasks() {
   const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // コレクション機能を統合
-  const { addToCollection, getCollectionStats } = useCollection();
+  const { addToCollection, getCollectionStats, collection } = useCollection();
   
   // addToCollectionを安定化するためのref
   const addToCollectionRef = useRef(addToCollection);
@@ -453,6 +453,7 @@ export function useTasks() {
     resetCharacterSelection,
     // コレクション関連の値
     getCollectionStats,
+    collection,
     toggleTask,
     addTask,
     deleteTask,
