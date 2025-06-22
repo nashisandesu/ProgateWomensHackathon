@@ -52,7 +52,7 @@ export function CompletedTasks({ tasks, onToggleTask }: CompletedTasksProps) {
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[90] p-2 lg:p-4">
           <div className="bg-white border-4 border-black p-4 lg:p-6 w-full h-full lg:w-11/12 lg:h-5/6 max-w-4xl max-h-[90vh] lg:max-h-[80vh] flex flex-col">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-end items-center mb-4">
               {/* 完了したタスクのタイトルは削除 */}
               <button
                 className="nes-btn py-2 lg:py-1"
