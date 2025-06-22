@@ -19,7 +19,17 @@ export function useTasks() {
   const [messageQueue, setMessageQueue] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState<Message | null>(null);
   const [lastHpCheck, setLastHpCheck] = useState<number>(0);
-  const [overdueHpLoss, setOverdueHpLoss] = useState<number>(0);
+  const [hp, setHp] = useState<number>(() => {
+    // localStorageからHPを読み込み、なければ最大HPで初期化
+    const storedHp = localStorage.getItem('todoQuestHp');
+    if (storedHp) {
+      return Number(storedHp);
+    } else {
+      // localStorageに値がない場合は、MAX_HPで初期化してlocalStorageにも保存
+      localStorage.setItem('todoQuestHp', MAX_HP.toString());
+      return MAX_HP;
+    }
+  });
   const [overdueTasks, setOverdueTasks] = useState<Task[]>([]);
   const [showOverdueNotification, setShowOverdueNotification] = useState(false);
   const [showLevelUpPopup, setShowLevelUpPopup] = useState(false);
@@ -41,14 +51,15 @@ export function useTasks() {
   const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // コレクション機能を統合
-  const { addToCollection, getCollectionStats } = useCollection();
+  const { addToCollection, getCollectionStats, collection } = useCollection();
+  
+  // addToCollectionを安定化するためのref
+  const addToCollectionRef = useRef(addToCollection);
+  addToCollectionRef.current = addToCollection;
 
   // 経験値とレベル計算（キャラクター選択ロジックより前に配置）
   const xp = tasks.filter(t => t.done).reduce((sum, t) => sum + t.point, 0);
   const level = Math.floor(xp / 100) + 1;
-  
-  // HP計算：最大HPから累積のHP損失を引く
-  const hp = Math.max(0, MAX_HP - overdueHpLoss);
 
   // キャラクター選択のヘルパー関数
   const pickRandomCharacter = () => {
@@ -72,6 +83,39 @@ export function useTasks() {
 
     const normalizedLevel = ((currentLevel - 1) % 5) + 1; // 1–5
     return `/character${selectedCharacter}/level${normalizedLevel}.gif`;
+  };
+
+  // HPをlocalStorageに保存する関数
+  const saveHpToStorage = (newHp: number) => {
+    try {
+      localStorage.setItem('todoQuestHp', newHp.toString());
+    } catch (error) {
+      console.error("Failed to save HP to localStorage:", error);
+    }
+  };
+
+  // HPを減少させる関数
+  const decreaseHp = (amount: number) => {
+    setHp(prevHp => {
+      const newHp = Math.max(0, prevHp - amount);
+      saveHpToStorage(newHp);
+      return newHp;
+    });
+  };
+
+  // HPを回復させる関数
+  const healHp = (amount: number) => {
+    setHp(prevHp => {
+      const newHp = Math.min(MAX_HP, prevHp + amount);
+      saveHpToStorage(newHp);
+      return newHp;
+    });
+  };
+
+  // HPを最大値にリセットする関数
+  const resetHp = () => {
+    setHp(MAX_HP);
+    saveHpToStorage(MAX_HP);
   };
 
   // キャラクター状態の永続化
@@ -100,8 +144,6 @@ export function useTasks() {
       // レベルアップした瞬間のみ抽選
       pickRandomCharacter();
     }
-
-    previousLevelRef.current = level;
   }, [level, hasSelectedCharacter]);
 
   // コレクション追加ロジック：レベルアップした瞬間のみコレクションに追加
@@ -119,12 +161,29 @@ export function useTasks() {
       condition: selectedCharacter !== null && isLevelUp && isCollectionLevel
     });
     
+    // 各条件を個別にチェック
+    console.log("Individual conditions:", {
+      hasSelectedCharacter: selectedCharacter !== null,
+      isLevelUp,
+      isCollectionLevel,
+      allConditionsMet: selectedCharacter !== null && isLevelUp && isCollectionLevel
+    });
+    
     if (selectedCharacter !== null && isLevelUp && isCollectionLevel) {
       // レベルアップした瞬間のみコレクションに追加
-      addToCollection(selectedCharacter);
+      addToCollectionRef.current(selectedCharacter);
       console.log(`Character ${selectedCharacter} added to collection at level ${level}`);
+    } else {
+      console.log("Collection add skipped:", {
+        reason: !selectedCharacter ? "no character selected" : 
+                !isLevelUp ? "not level up" : 
+                !isCollectionLevel ? "not collection level" : "unknown"
+      });
     }
-  }, [level, selectedCharacter, addToCollection]);
+    
+    // コレクション追加処理の後にpreviousLevelRefを更新
+    previousLevelRef.current = level;
+  }, [level]);
 
   // 初期ロード
   useEffect(() => {
@@ -139,19 +198,10 @@ export function useTasks() {
         const initialOverdueTasks = loadedTasks.filter((t: Task) => 
           !t.done && t.due && new Date(t.due) < now
         );
-        setOverdueHpLoss(initialOverdueTasks.length);
         setOverdueTasks(initialOverdueTasks);
         if (initialOverdueTasks.length > 0) {
           setShowOverdueNotification(true);
         }
-      }
-      
-      // HP損失もlocalStorageから読み込み（上書きされる可能性があるため後で処理）
-      const storedHpLoss = localStorage.getItem('todoQuestHpLoss');
-      if (storedHpLoss) {
-        const storedLoss = JSON.parse(storedHpLoss);
-        // 保存されたHP損失と計算されたHP損失の大きい方を採用
-        setOverdueHpLoss(prev => Math.max(prev, storedLoss));
       }
       
       // lastHpCheckを現在時刻に設定
@@ -174,18 +224,7 @@ export function useTasks() {
     }
   }, [tasks, isLoading]);
 
-  // HP損失の保存
-  useEffect(() => {
-    if (!isLoading) {
-      try {
-        localStorage.setItem('todoQuestHpLoss', JSON.stringify(overdueHpLoss));
-      } catch (error) {
-        console.error("Failed to save HP loss to localStorage:", error);
-      }
-    }
-  }, [overdueHpLoss, isLoading]);
-
-  // 統一された期限切れタスクのチェックとHP減少
+  // 期限切れタスクのチェックとHP減少（統合版）
   useEffect(() => {
     if (isLoading) return;
 
@@ -202,13 +241,10 @@ export function useTasks() {
       setOverdueTasks(overdueTasks);
       setShowOverdueNotification(overdueTasks.length > 0);
       
-      // 新しい期限切れタスクがある場合、HP減少アニメーションを表示し、HP損失を記録
+      // 新しい期限切れタスクがある場合、HP減少アニメーションを表示し、HPを減少
       if (newOverdueTasks.length > 0) {
         addMessageToQueue({ type: 'hpLoss', content: `HP -${newOverdueTasks.length} 💔`, amount: newOverdueTasks.length });
-        setOverdueHpLoss(prev => {
-          const newLoss = prev + newOverdueTasks.length;
-          return newLoss;
-        });
+        decreaseHp(newOverdueTasks.length);
         setLastHpCheck(now.getTime());
       }
     };
@@ -221,86 +257,6 @@ export function useTasks() {
 
     return () => clearInterval(interval);
   }, [tasks, lastHpCheck, isLoading]);
-
-  // リアルタイム期限切れチェック（より頻繁にチェック）
-  useEffect(() => {
-    const checkRealTimeOverdue = () => {
-      const now = new Date();
-      const overdueTasks = tasks.filter(t => !t.done && t.due && new Date(t.due) < now);
-      
-      // 前回のチェック以降に期限切れになったタスクを検出
-      const newOverdueTasks = overdueTasks.filter(task => 
-        new Date(task.due!).getTime() > lastHpCheck
-      );
-      
-      // 期限切れタスクの状態を更新
-      setOverdueTasks(overdueTasks);
-      setShowOverdueNotification(overdueTasks.length > 0);
-      
-      // 新しい期限切れタスクがある場合、HP減少アニメーションを表示し、HP損失を記録
-      if (newOverdueTasks.length > 0) {
-        addMessageToQueue({ type: 'hpLoss', content: `HP -${newOverdueTasks.length} 💔`, amount: newOverdueTasks.length });
-        setOverdueHpLoss(prev => prev + newOverdueTasks.length);
-        setLastHpCheck(now.getTime());
-      }
-    };
-
-    // 10秒ごとにリアルタイムチェック
-    const realTimeInterval = setInterval(checkRealTimeOverdue, 10000);
-
-    return () => clearInterval(realTimeInterval);
-  }, [tasks, lastHpCheck]);
-
-  // 期限切れ直前のタスクを監視（1秒ごとにチェック）
-  useEffect(() => {
-    const checkImminentOverdue = () => {
-      const now = new Date();
-      const oneMinuteFromNow = new Date(now.getTime() + 60000); // 1分後
-      
-      // 1分以内に期限が切れるタスクを検出
-      const imminentOverdueTasks = tasks.filter(t => 
-        !t.done && 
-        t.due && 
-        new Date(t.due) > now && 
-        new Date(t.due) <= oneMinuteFromNow
-      );
-      
-      // 期限切れ直前のタスクがある場合、より頻繁にチェック
-      if (imminentOverdueTasks.length > 0) {
-        const checkOverdue = () => {
-          const currentTime = new Date();
-          const overdueTasks = tasks.filter(t => !t.done && t.due && new Date(t.due) < currentTime);
-          
-          const newOverdueTasks = overdueTasks.filter(task => 
-            new Date(task.due!).getTime() > lastHpCheck
-          );
-          
-          // 期限切れタスクの状態を更新
-          setOverdueTasks(overdueTasks);
-          setShowOverdueNotification(overdueTasks.length > 0);
-          
-          if (newOverdueTasks.length > 0) {
-            addMessageToQueue({ type: 'hpLoss', content: `HP -${newOverdueTasks.length} 💔`, amount: newOverdueTasks.length });
-            setOverdueHpLoss(prev => prev + newOverdueTasks.length);
-            setLastHpCheck(currentTime.getTime());
-          }
-        };
-        
-        // 1秒ごとにチェック
-        const immediateInterval = setInterval(checkOverdue, 1000);
-        
-        // 1分後にクリーンアップ
-        setTimeout(() => clearInterval(immediateInterval), 60000);
-        
-        return () => clearInterval(immediateInterval);
-      }
-    };
-
-    // 30秒ごとに期限切れ直前のタスクをチェック
-    const imminentInterval = setInterval(checkImminentOverdue, 30000);
-
-    return () => clearInterval(imminentInterval);
-  }, [tasks, lastHpCheck]);
 
   const toggleTask = (id: string) => {
     setTasks(prev => {
@@ -434,6 +390,7 @@ export function useTasks() {
     resetCharacterSelection,
     // コレクション関連の値
     getCollectionStats,
+    collection,
     toggleTask,
     addTask,
     deleteTask,
@@ -442,5 +399,9 @@ export function useTasks() {
     getOverdueTasks,
     getActiveTasks,
     closeLevelUpPopup,
+    // HP操作関数もエクスポート
+    decreaseHp,
+    healHp,
+    resetHp,
   };
 } 

@@ -21,7 +21,6 @@ export function LevelUpPopup({ show, levelUpData, getCurrentGif, onClose }: Leve
   
   // レベルを5で割った余りでお祝いメッセージを取得（余りが0の場合は5として扱う）
   const levelRemainder = (levelUpData.newLevel - 1) % 5 || 5;
-  console.log(levelRemainder);
   const congratulationMessage = CONGRATULATION_MESSAGES[levelRemainder as keyof typeof CONGRATULATION_MESSAGES] || 
     "おめでとうございます！\n新しいレベルでさらに頑張りましょう！";
 

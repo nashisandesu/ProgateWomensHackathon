@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { TokenResponse } from '@react-oauth/google';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { LoginPage, CatCharacter, TaskList, AddTaskForm, OverdueNotification, LevelUpPopup, CollectionScreen } from './components';
-import { useTasks, useCollection } from './hooks';
+import { useTasks } from './hooks';
 import { GOOGLE_CLIENT_ID } from './utils';
 
 // --- メインのAppコンポーネント ---
@@ -34,6 +34,8 @@ function TodoQuest() {
     selectedCharacter,
     hasSelectedCharacter,
     getCurrentGif,
+    // コレクション関連の値
+    collection,
     toggleTask,
     addTask,
     deleteTask,
@@ -41,8 +43,6 @@ function TodoQuest() {
     extendDeadline,
     closeLevelUpPopup,
   } = useTasks();
-
-  const { collection } = useCollection();
 
   // ユーザー情報がない（ログインしていない）場合は、ログインページを表示
   if (!user) {
@@ -70,8 +70,7 @@ function TodoQuest() {
       </div>
 
       {/* ─ Right Task Panel ─ */}
-      <div className="w-full lg:w-1/2 h-auto lg:h-full border-4 border-black p-2 lg:p-4 flex flex-col flex-1">
-        <h2 className="text-lg lg:text-xl mb-2 lg:mb-4">今日のタスク</h2>
+      <div className="w-full lg:w-1/2 h-auto lg:h-full border-4 border-black p-2 lg:p-4 flex flex-col overflow-hidden">
         <TaskList
           tasks={tasks}
           onToggleTask={toggleTask}
@@ -92,11 +91,15 @@ function TodoQuest() {
       {/* Floating Collection Button - 左下に配置 */}
       <button
         onClick={() => setShowCollection(true)}
-        className="fixed bottom-4 left-4 lg:bottom-8 lg:left-8 bg-purple-500 hover:bg-purple-600 text-white rounded-full w-16 h-16 lg:w-20 lg:h-20 flex items-center justify-center text-2xl lg:text-3xl shadow-lg transition-all duration-200 z-50"
+        className="fixed bottom-4 left-4 lg:bottom-8 lg:left-8 bg-yellow-200 hover:bg-yellow-300 text-white rounded-full w-16 h-16 lg:w-20 lg:h-20 flex items-center justify-center text-2xl lg:text-3xl shadow-lg transition-all duration-200 z-50"
         style={{ boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}
         title="コレクション"
       >
-        📚
+        <img 
+          src="/collection.png" 
+          alt="コレクション" 
+          className="w-12 h-12 lg:w-10 lg:h-10 object-contain"
+        />
       </button>
 
       {/* Add Task Form Modal */}
