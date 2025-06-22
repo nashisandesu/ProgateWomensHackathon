@@ -98,7 +98,7 @@ function TodoQuest() {
         <img 
           src="/collection.png" 
           alt="コレクション" 
-          className="w-8 h-8 lg:w-10 lg:h-10 object-contain"
+          className="w-12 h-12 lg:w-10 lg:h-10 object-contain"
         />
       </button>
 
